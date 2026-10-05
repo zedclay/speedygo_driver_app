@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:speedygo_driver_app/core/constants/app_constants.dart';
-import 'package:speedygo_driver_app/core/network/api_client.dart';
+import 'package:speedygo_driver_app/core/constants/app_strings.dart';
+import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
 
-final appNameProvider = Provider<String>((ref) => AppConstants.appName);
-
-final dioProvider = Provider<Dio>((ref) => createApiClient());
+final appNameProvider = Provider<String>((ref) {
+  ref.watch(localeControllerProvider);
+  return AppStrings.appName;
+});

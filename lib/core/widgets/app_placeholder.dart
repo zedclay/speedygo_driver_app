@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppPlaceholder extends StatelessWidget {
-  const AppPlaceholder({
-    super.key,
-    required this.title,
-    required this.message,
-  });
+  const AppPlaceholder({super.key, required this.title, required this.message});
 
   final String title;
   final String message;
@@ -17,10 +13,7 @@ class AppPlaceholder extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text(
-            message,
-            textAlign: TextAlign.center,
-          ),
+          child: Text(message, textAlign: TextAlign.center),
         ),
       ),
     );

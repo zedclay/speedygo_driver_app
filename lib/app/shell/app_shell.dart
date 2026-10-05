@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:speedygo_driver_app/app/providers/app_providers.dart';
-import 'package:speedygo_driver_app/core/widgets/app_placeholder.dart';
+import 'package:speedygo_driver_app/features/auth/presentation/splash_screen.dart';
 
-class AppShell extends ConsumerWidget {
+/// Retained for compatibility; splash now owns bootstrap.
+class AppShell extends StatelessWidget {
   const AppShell({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final appName = ref.watch(appNameProvider);
-    return AppPlaceholder(
-      title: appName,
-      message:
-          'Application shell only. Driver features are not implemented yet.',
-    );
-  }
+  Widget build(BuildContext context) => const SplashScreen();
 }
