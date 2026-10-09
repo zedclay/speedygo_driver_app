@@ -1,0 +1,1149 @@
+{
+  "generated_at": "2026-10-09",
+  "driver_branch": "feat/driver-stitch-full-ui-v1",
+  "driver_baseline_head": "be7cedd142f3810757d699a60ee3808ce6f8fdf7",
+  "backend_head": "3131c4ec0e0d3295f1eeedf5e13f3cbdeb3c02b4",
+  "zip": "screens/DriverScreens/stitch_speedygo_driver_mobile_app.zip",
+  "folder_count": 47,
+  "html_count": 47,
+  "valid_png_count": 13,
+  "invalid_png_count": 34,
+  "summary": {
+    "implemented": 28,
+    "merged_state": 5,
+    "already_implemented_and_preserved": 8,
+    "blocked_contract": 5,
+    "deferred_provider": 0,
+    "not_applicable_duplicate": 1,
+    "unreviewed": 0
+  },
+  "unreviewed": 0,
+  "screens": [
+    {
+      "source_folder": "splash_and_session_routing",
+      "intended_screen_state": "Session bootstrap",
+      "canonical_flutter": "/ → SplashScreen",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "GET /auth/me + tokens",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "widget_test",
+      "evidence": "availability live (session)",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "03_home_online"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "connexion_chauffeur_t_l_phone",
+      "intended_screen_state": "Phone auth",
+      "canonical_flutter": "/auth/phone PhoneScreen",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "POST /auth/otp/request",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "localization",
+      "evidence": "—",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "01_phone"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "v_rification_otp_chauffeur",
+      "intended_screen_state": "OTP verify",
+      "canonical_flutter": "/auth/otp OtpScreen",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "POST /auth/otp/verify",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "localization",
+      "evidence": "—",
+      "blocker": "Never log OTP",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "02_otp"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "inscription_chauffeur",
+      "intended_screen_state": "Onboarding profile",
+      "canonical_flutter": "/onboarding/profile",
+      "decision": "implemented",
+      "backend_dependency": "POST/PATCH /driver/profile",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell/onboarding",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "t_l_chargement_pi_ce_d_identit",
+      "intended_screen_state": "Identity upload",
+      "canonical_flutter": "/onboarding/identity",
+      "decision": "implemented",
+      "backend_dependency": "POST documents/IDENTITY/content + PUT",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "Document picker UnavailableDocumentSource until approved",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "t_l_chargement_permis_de_conduire",
+      "intended_screen_state": "License upload",
+      "canonical_flutter": "/onboarding/license",
+      "decision": "implemented",
+      "backend_dependency": "POST documents/DRIVING_LICENSE/content + PUT",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "Same picker blocker",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "informations_du_v_hicule_2",
+      "intended_screen_state": "Onboarding vehicle",
+      "canonical_flutter": "/onboarding/vehicle",
+      "decision": "implemented",
+      "backend_dependency": "POST /driver/vehicles",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "informations_du_v_hicule_1",
+      "intended_screen_state": "Profile vehicle",
+      "canonical_flutter": "/profile/vehicle",
+      "decision": "implemented",
+      "backend_dependency": "GET me + vehicles",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "mes_documents_chauffeur",
+      "intended_screen_state": "Documents hub",
+      "canonical_flutter": "/profile/documents",
+      "decision": "implemented",
+      "backend_dependency": "documents content/meta",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "Picker blocker for new uploads",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "r_vision_de_la_v_rification",
+      "intended_screen_state": "Review/submit",
+      "canonical_flutter": "/onboarding/review",
+      "decision": "implemented",
+      "backend_dependency": "POST /driver/verification/submit",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "v_rification_en_attente",
+      "intended_screen_state": "Pending",
+      "canonical_flutter": "/onboarding/pending",
+      "decision": "implemented",
+      "backend_dependency": "GET /driver/me status",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "soumission_des_corrections_optimis_e",
+      "intended_screen_state": "Corrections",
+      "canonical_flutter": "/onboarding/corrections",
+      "decision": "implemented",
+      "backend_dependency": "profile/docs when REJECTED",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "v_rification_approuv_e",
+      "intended_screen_state": "Approved",
+      "canonical_flutter": "/onboarding/approved",
+      "decision": "implemented",
+      "backend_dependency": "GET /driver/me APPROVED",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_en_ligne_fonctionnel",
+      "intended_screen_state": "Home online (canonical)",
+      "canonical_flutter": "/home DriverHomeScreen ONLINE",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "go-online + me + location",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "availability_offers_live",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "03_home_online"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_en_ligne_perfect_sync",
+      "intended_screen_state": "Home online + location",
+      "canonical_flutter": "/home merged_state",
+      "decision": "merged_state",
+      "backend_dependency": "POST /driver/location",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "availability_offers_live",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "03_home_online"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_en_ligne_support_statut_pur",
+      "intended_screen_state": "Home online status-only",
+      "canonical_flutter": "/home merged_state",
+      "decision": "merged_state",
+      "backend_dependency": "GET /driver/me",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "—",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "03_home_online"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_en_ligne_menu_hamburger_top_bar_bleue",
+      "intended_screen_state": "Top bar chrome",
+      "canonical_flutter": "DriverShell AppBar",
+      "decision": "merged_state",
+      "backend_dependency": "—",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell_navigation",
+      "evidence": "stitch evidence",
+      "blocker": "Drawer not shipped; shell replaces hamburger",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "03_home_online"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_en_ligne_menu_hamburger_drawer_bleu",
+      "intended_screen_state": "Drawer chrome",
+      "canonical_flutter": "DriverShell NavBar",
+      "decision": "not_applicable_duplicate",
+      "backend_dependency": "—",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell_navigation",
+      "evidence": "—",
+      "blocker": "No redundant drawer",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "03_home_online"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_hors_ligne_fonctionnel",
+      "intended_screen_state": "Home offline (canonical)",
+      "canonical_flutter": "/home OFFLINE",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "go-offline",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "availability_offers_live",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "04_home_offline"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_hors_ligne_banni_re_demande",
+      "intended_screen_state": "Home offline + offer",
+      "canonical_flutter": "/home offer card",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "current-offer poll",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "availability_offers_live",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "04_home_offline"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_hors_ligne_support_statut_pur",
+      "intended_screen_state": "Home offline status",
+      "canonical_flutter": "/home merged_state",
+      "decision": "merged_state",
+      "backend_dependency": "GET /driver/me",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "—",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "04_home_offline"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "accueil_hors_ligne_menu_hamburger",
+      "intended_screen_state": "Offline chrome",
+      "canonical_flutter": "DriverShell",
+      "decision": "merged_state",
+      "backend_dependency": "—",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell_navigation",
+      "evidence": "—",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "04_home_offline"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "d_tails_de_la_course_00_45_privacy",
+      "intended_screen_state": "Offer detail/sticky",
+      "canonical_flutter": "/home offer + sticky bar",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "accept/reject empty body; expiresAt",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "driver_home_*",
+      "evidence": "availability_offers_live",
+      "blocker": "00:45 is visual sample not timer contract",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "04_home_offline"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "navigation_vers_le_marchand",
+      "intended_screen_state": "To merchant",
+      "canonical_flutter": "/delivery/current TO_PICKUP",
+      "decision": "implemented",
+      "backend_dependency": "start-to-pickup",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "delivery_lifecycle",
+      "evidence": "stitch evidence",
+      "blocker": "Maps deferred — honest nav card",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "deferred",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "05_delivery_to_pickup"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "arriv_chez_le_marchand",
+      "intended_screen_state": "Arrive merchant",
+      "canonical_flutter": "/delivery/current arrive-pickup",
+      "decision": "implemented",
+      "backend_dependency": "arrive-pickup + location GPS gate",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "delivery_lifecycle",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "deferred",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "06_delivery_at_pickup"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "en_attente_de_pr_paration",
+      "intended_screen_state": "Prep wait AT_PICKUP",
+      "canonical_flutter": "/delivery/current AT_PICKUP",
+      "decision": "implemented",
+      "backend_dependency": "GET current (poll/refresh)",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "delivery_lifecycle",
+      "evidence": "stitch evidence",
+      "blocker": "No local fake prep timer",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "deferred",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "06_delivery_at_pickup"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "confirmation_du_retrait_pin_s_curis",
+      "intended_screen_state": "Pickup handoff PIN",
+      "canonical_flutter": "/delivery/current confirm-pickup",
+      "decision": "already_implemented_and_preserved",
+      "backend_dependency": "confirm-pickup coded/legacy",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "current_delivery_*",
+      "evidence": "pickup handoff report",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "06_delivery_at_pickup"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "contact_marchand",
+      "intended_screen_state": "Contact merchant",
+      "canonical_flutter": "/blocked/contact",
+      "decision": "blocked_contract",
+      "backend_dependency": "none",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "No call-proxy contract",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "deferred"
+      },
+      "mocked_widget_captures": [
+        "14_blocked_contact"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "navigation_vers_le_client",
+      "intended_screen_state": "To customer",
+      "canonical_flutter": "/delivery/current IN_TRANSIT",
+      "decision": "implemented",
+      "backend_dependency": "start-delivery",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "delivery_lifecycle",
+      "evidence": "stitch evidence",
+      "blocker": "Maps deferred",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "deferred",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "07_delivery_arrived_customer"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "chauffeur_proximit",
+      "intended_screen_state": "Near customer",
+      "canonical_flutter": "/delivery/current arrive-customer",
+      "decision": "implemented",
+      "backend_dependency": "arrive-customer + location",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "delivery_lifecycle",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "deferred",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "07_delivery_arrived_customer"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "contact_client",
+      "intended_screen_state": "Contact customer",
+      "canonical_flutter": "/blocked/contact",
+      "decision": "blocked_contract",
+      "backend_dependency": "none",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "No call-proxy contract",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "deferred"
+      },
+      "mocked_widget_captures": [
+        "14_blocked_contact"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "validation_du_code_de_livraison",
+      "intended_screen_state": "Customer delivery PIN",
+      "canonical_flutter": "/blocked/delivery-pin",
+      "decision": "blocked_contract",
+      "backend_dependency": "none (complete is proofless MVP)",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "Needs backend+Customer proof",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "15_blocked_delivery_pin"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "signalement_de_probl_me_de_livraison",
+      "intended_screen_state": "Issue report",
+      "canonical_flutter": "/blocked/failure-report",
+      "decision": "blocked_contract",
+      "backend_dependency": "none",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "No driver fail endpoint",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "16_blocked_failure"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "chec_de_livraison",
+      "intended_screen_state": "Delivery failure",
+      "canonical_flutter": "/blocked/failure-report",
+      "decision": "blocked_contract",
+      "backend_dependency": "none",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "No driver fail endpoint",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "16_blocked_failure"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "livraison_termin_e",
+      "intended_screen_state": "Delivered",
+      "canonical_flutter": "/delivery/current DELIVERED",
+      "decision": "implemented",
+      "backend_dependency": "complete-delivery",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "delivery_lifecycle",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "08_delivery_delivered"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "historique_des_livraisons",
+      "intended_screen_state": "History list",
+      "canonical_flutter": "/history",
+      "decision": "implemented",
+      "backend_dependency": "GET /driver/deliveries/history",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "history_earnings_l10n",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "09_history"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "d_tails_de_livraison_historique",
+      "intended_screen_state": "History detail",
+      "canonical_flutter": "/history/detail/:id",
+      "decision": "implemented",
+      "backend_dependency": "GET history/:id",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "history_earnings_l10n",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "09_history"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "gains_et_totaux_op_rationnels",
+      "intended_screen_state": "Earnings",
+      "canonical_flutter": "/earnings",
+      "decision": "implemented",
+      "backend_dependency": "earnings summary + list",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "history_earnings_l10n",
+      "evidence": "stitch evidence",
+      "blocker": "Earnings ≠ COD",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "10_earnings"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "r_conciliation_de_caisse",
+      "intended_screen_state": "COD custody/remit",
+      "canonical_flutter": "/earnings COD section",
+      "decision": "implemented",
+      "backend_dependency": "cod/summary + remittances POST",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "history_earnings_l10n",
+      "evidence": "stitch evidence",
+      "blocker": "No remittance list GET",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "07_delivery_arrived_customer"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "profil_du_chauffeur",
+      "intended_screen_state": "Profile",
+      "canonical_flutter": "/profile",
+      "decision": "implemented",
+      "backend_dependency": "GET /driver/me",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell_navigation",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "param_tres_du_chauffeur",
+      "intended_screen_state": "Settings hub",
+      "canonical_flutter": "/settings",
+      "decision": "implemented",
+      "backend_dependency": "language + links",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "param_tres_de_langue_et_notifications",
+      "intended_screen_state": "Language + notif prefs",
+      "canonical_flutter": "/settings/language + /blocked/notification-prefs",
+      "decision": "implemented",
+      "backend_dependency": "locale store; prefs blocked",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "localization",
+      "evidence": "stitch evidence",
+      "blocker": "Notification preferences NOT FOUND",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "deferred",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "notifications_chauffeur_haute_demande",
+      "intended_screen_state": "Inbox",
+      "canonical_flutter": "/notifications",
+      "decision": "implemented",
+      "backend_dependency": "GET /notifications",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell_navigation",
+      "evidence": "stitch evidence",
+      "blocker": "High-demand badge only if server sends type; no demand signal API",
+      "stitch_png_valid": true,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "deferred",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "12_notifications"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "aide_support",
+      "intended_screen_state": "Support list",
+      "canonical_flutter": "/support",
+      "decision": "implemented",
+      "backend_dependency": "GET/POST /driver/support",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "13_support"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "support_ticket_detail",
+      "intended_screen_state": "Support detail",
+      "canonical_flutter": "/support/detail/:id",
+      "decision": "implemented",
+      "backend_dependency": "GET support/:id + messages",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "13_support"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "notes_et_commentaires_du_chauffeur",
+      "intended_screen_state": "Ratings",
+      "canonical_flutter": "/profile/ratings",
+      "decision": "implemented",
+      "backend_dependency": "GET /driver/ratings/summary",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "—",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    },
+    {
+      "source_folder": "d_connexion_confirmation",
+      "intended_screen_state": "Logout confirm",
+      "canonical_flutter": "Profile confirmation sheet",
+      "decision": "implemented",
+      "backend_dependency": "POST /auth/logout",
+      "fr": "ok",
+      "ar": "ok",
+      "rtl": "ok",
+      "tests": "shell_navigation",
+      "evidence": "stitch evidence",
+      "blocker": "—",
+      "stitch_png_valid": false,
+      "provider_dependencies": {
+        "maps_provider": "not_applicable",
+        "native_push_provider": "not_applicable",
+        "call_proxy_provider": "not_applicable"
+      },
+      "mocked_widget_captures": [
+        "11_profile"
+      ],
+      "evidence_level": "mocked_widget_ui"
+    }
+  ],
+  "summary_total": 47,
+  "deferred_provider_dependency_rows": 9,
+  "deferred_providers": [
+    "maps_provider",
+    "native_push_provider",
+    "call_proxy_provider"
+  ],
+  "blocked_contract_rows": [
+    {
+      "source_folder": "contact_marchand",
+      "missing_contract": "none",
+      "blocker": "No call-proxy contract"
+    },
+    {
+      "source_folder": "contact_client",
+      "missing_contract": "none",
+      "blocker": "No call-proxy contract"
+    },
+    {
+      "source_folder": "validation_du_code_de_livraison",
+      "missing_contract": "none (complete is proofless MVP)",
+      "blocker": "Needs backend+Customer proof"
+    },
+    {
+      "source_folder": "signalement_de_probl_me_de_livraison",
+      "missing_contract": "none",
+      "blocker": "No driver fail endpoint"
+    },
+    {
+      "source_folder": "chec_de_livraison",
+      "missing_contract": "none",
+      "blocker": "No driver fail endpoint"
+    }
+  ],
+  "final_test_status": {
+    "offers_v1_baseline_be7cedd": "63/63 PASS (historical preserved)",
+    "stitch_intermediate_shell_wiring": "104/104 PASS (intermediate only)",
+    "stitch_pre_coverage_parser": "137/137 PASS (intermediate; before coverage matrix tests)",
+    "stitch_full_checkpoint": "142/142 PASS (authoritative for this preservation)"
+  },
+  "evidence_status": "IMPLEMENTED — STATIC/UNIT/WIDGET/MOCKED UI VERIFIED",
+  "live_stitch_ui": false,
+  "live_post_accept_lifecycle": false,
+  "user_accepted": false,
+  "release_ready": false
+}
