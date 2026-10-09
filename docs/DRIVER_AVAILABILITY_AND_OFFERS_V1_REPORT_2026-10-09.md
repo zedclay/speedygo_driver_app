@@ -1,10 +1,12 @@
 # SpeedyGo Driver Availability and Delivery Offers V1
 
-**Date:** 2026-10-09  
-**Primary repo:** `apps/driver_app`  
-**Branch:** `feat/driver-availability-offers-v1`  
-**Base commit:** `7030e587e69650ebbbcd3e5697eb010c0c058316` (`feat/driver-current-delivery-pickup-handoff-v1`)  
-**HEAD (uncommitted work on same SHA):** `7030e587e69650ebbbcd3e5697eb010c0c058316`
+**Date:** 2026-10-09
+**Primary repo:** `apps/driver_app`
+**Branch:** `feat/driver-availability-offers-v1`
+**Base commit:** `7030e587e69650ebbbcd3e5697eb010c0c058316`
+**Implementation commit:** `a4692a8c463ef463ee7965874db44cd2196e7204`
+**Home-routing fix:** `013074be20167fbad0bbb1629440dbe93a217d6f`
+**Phase status:** `IMPLEMENTED — LIVE UI VERIFIED` + `MATCHING RUNTIME VERIFIED`
 
 ## 1. Starting Git state and created branch
 
@@ -12,12 +14,9 @@
 | --- | --- |
 | Driver start branch | `feat/driver-current-delivery-pickup-handoff-v1` |
 | Driver start SHA | `7030e587e69650ebbbcd3e5697eb010c0c058316` |
-| Created branch | `feat/driver-availability-offers-v1` (from pickup-handoff tip) |
+| Feature branch | `feat/driver-availability-offers-v1` |
 | Backend (read-only) | `feat/driver-assignment-version-contract` @ `3131c4ec0e0d3295f1eeedf5e13f3cbdeb3c02b4` |
-| Merchant (untouched) | `feat/merchant-fr-ar-localization-v1` @ `4254dee20ad54cd9eddff8804d231c4b5ea14cb6` |
-| Commit / push | **None** (explicitly withheld) |
-
-Worktree was clean at the pickup SHA before the feature branch was created. Implementation remains local and uncommitted.
+| Merchant (untouched) | `feat/merchant-fr-ar-localization-v1` @ `4254dee20ad54cd9eddff8804d231c4b5ea14cb6` (77/77) |
 
 ## 2. Backend contract inventory (source-backed)
 
@@ -40,19 +39,17 @@ Worktree was clean at the pickup SHA before the feature branch was created. Impl
 | Matching errors | `apps/backend/src/modules/matching/domain/matching.errors.ts` |
 | Current delivery (post-accept) | `apps/backend/src/modules/delivery/presentation/http/driver-delivery.controller.ts` |
 
-**No offer push event exists on Socket.IO.** Realtime socket traffic for Drivers is location publish (`driver:location:update`). Offer retrieval is authenticated HTTP `GET /driver/assignments/current-offer`.
+**No offer push event exists on Socket.IO.** Offer retrieval is authenticated HTTP `GET /driver/assignments/current-offer`.
 
 ## 3. Availability contract
 
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/driver/me` | Authoritative `availability.status`, `operationalReady`, `matchingEligible` |
-| `POST` | `/driver/availability/go-online` | Requires APPROVED + operational ready + current `OFFLINE`. GPS **not** required to persist `ONLINE`. Returns `DriverMeResponseDto`. |
-| `POST` | `/driver/availability/go-offline` | `ONLINE` → `OFFLINE`, or `OFFLINE_AFTER_CURRENT_DELIVERY` when an accepted assignment is open. |
+| `POST` | `/driver/availability/go-online` | APPROVED + operational ready + current `OFFLINE`. GPS not required to persist ONLINE. |
+| `POST` | `/driver/availability/go-offline` | ONLINE → OFFLINE, or OFFLINE_AFTER_CURRENT_DELIVERY when accepted assignment open. |
 
-Statuses used by UI: `OFFLINE`, `ONLINE`, `OFFLINE_AFTER_CURRENT_DELIVERY`, `SUSPENDED`.
-
-Client rule: never show online until `go-online` returns `availability.status == ONLINE`.
+UI never shows online until server returns `availability.status == ONLINE`.
 
 ## 4. Location contract
 
@@ -60,175 +57,145 @@ Client rule: never show online until `go-online` returns `availability.status ==
 | --- | --- | --- |
 | `POST` | `/driver/location` | `{ latitude, longitude, accuracyMeters? }` |
 
-Publish allowed when APPROVED and (`ONLINE` **or** has accepted assignment). Same store as Socket.IO. Does not change availability. Accept/matching require a fresh store point (≤ `matching.locationMaxAgeMs`, default **45s**).
-
-Driver app uses OS location via `geolocator` (when-in-use only). HTTP publish every **20s** while online (client cadence under the 45s freshness bound). No Google Maps / Places / background location.
+Publish allowed when APPROVED and (`ONLINE` or accepted assignment). Accept/matching require freshness ≤45s. App uses OS when-in-use location via `geolocator`; HTTP publish while online. No Maps provider.
 
 ## 5. Offer and realtime contract
 
 | Method | Path | Body |
 | --- | --- | --- |
-| `GET` | `/driver/assignments/current-offer` | — → `{ offer: AssignmentOffer \| null }` |
+| `GET` | `/driver/assignments/current-offer` | `{ offer }` |
 | `POST` | `/driver/assignments/:assignmentId/accept` | empty |
-| `POST` | `/driver/assignments/:assignmentId/reject` | empty (no reason field) |
+| `POST` | `/driver/assignments/:assignmentId/reject` | empty |
 
-Pre-accept offer fields (privacy boundary): `assignmentId`, `deliveryId`, `orderPublicReference`, `status`, `offeredAt`, `expiresAt`, `driverRemunerationMinor`, `pickup.name`, `pickupDistanceMeters`, `deliveryDistanceMeters?`. No customer phone, merchant phone, or exact dropoff address.
-
-Countdown uses server `expiresAt` (+ optional HTTP `Date` skew). Client poll of `current-offer` every **4s** while online and idle (not a new endpoint).
-
-After accept: clear offer → refresh `GET /driver/deliveries/current` → navigate to existing pickup handoff screen.
+Pre-accept fields only: assignmentId, deliveryId, orderPublicReference, status, offeredAt, expiresAt, driverRemunerationMinor, pickup.name, distances. Countdown from server `expiresAt` (+ optional HTTP `Date` skew). Client poll every 4s while online/idle.
 
 ## 6. Files added or changed
 
-### Added
+See git history on `feat/driver-availability-offers-v1`. Notable additions:
 
-- `lib/features/availability/data/driver_me_models.dart`
-- `lib/features/availability/data/offer_models.dart`
-- `lib/features/availability/data/availability_api.dart`
-- `lib/features/availability/data/device_location.dart`
-- `lib/features/availability/application/offer_countdown.dart`
-- `lib/features/availability/application/driver_home_controller.dart`
-- `lib/features/availability/presentation/driver_home_screen.dart`
-- `test/offer_countdown_test.dart`
-- `test/driver_me_models_test.dart`
-- `test/driver_home_controller_test.dart`
-- `test/driver_home_screen_test.dart`
+- `lib/features/availability/**`
+- `integration_test/live_availability_offers_driver_test.dart`
 - `docs/scripts/fx_driver_availability_api_verify.py`
-- `docs/evidence/fx_availability_2026-10-09/*`
-- `docs/DRIVER_AVAILABILITY_AND_OFFERS_V1_REPORT_2026-10-09.md` (this file)
-
-### Changed
-
-- `lib/core/constants/app_constants.dart` — endpoints + `/home` route
-- `lib/core/constants/app_strings.dart` — FR/AR availability/offer/location/errors
-- `lib/l10n/app_fr.arb`, `lib/l10n/app_ar.arb` (+ generated localizations)
-- `lib/app/router/app_router.dart` — authed home → availability
-- `lib/features/delivery/presentation/current_delivery_screen.dart` — back to home
-- `pubspec.yaml` / `pubspec.lock` — `geolocator`
-- `ios/Runner/Info.plist` — `NSLocationWhenInUseUsageDescription`
-- `android/app/src/main/AndroidManifest.xml` — coarse/fine location + internet
+- `docs/scripts/fx_driver_offers_scenarios.py`
+- `docs/scripts/fx_live_offers_setup.py`
+- `docs/scripts/fx_live_offers_ui.sh`
+- `docs/scripts/fx_live_offers_ui_resume.sh`
+- `docs/evidence/availability_offers_live_2026-10-09/**`
 
 ## 7. Implemented Driver flow
 
 1. Auth → `/home` (availability).
 2. Load `/driver/me` + current delivery.
-3. Go online (server confirm) → request when-in-use location → publish → poll offers.
+3. Go online (server confirm) → when-in-use location → publish → poll offers.
 4. Waiting UI when online and `offer == null`.
-5. Offer card with authorized fields + server countdown.
-6. Accept (publish fresh location first) → current delivery screen (pickup handoff unchanged).
-7. Reject (empty body) → clear offer → continue waiting.
-8. Resume / refresh recalculates countdown from `expiresAt` and reloads authoritative state.
-9. Logout / dispose stops timers and clears state.
+5. Offer card + sticky accept/reject bar; server countdown.
+6. Accept → current delivery (pickup handoff unchanged).
+7. Reject (empty body) → waiting.
+8. Resume/refresh recalculates from `expiresAt`.
+9. Logout/dispose stops timers.
 
 ## 8. French / Arabic and RTL
 
-All new user-visible strings exist in `AppStrings` and matching ARB keys (FR + AR). Arabic home rendering uses RTL `Directionality`. Operational identifiers (order ref, countdown, distances, remuneration) use LTR / tabular figures where needed. Widget tests cover FR and AR availability labels.
+All new strings in `AppStrings` + ARB. Live Arabic offer screenshot captured (`fxoffers_09_arabic_rtl_offer.png`).
 
 ## 9. Error / conflict mapping
 
-Mapped via `AppStrings.errorForCode` including:
-
-- `DRIVER_NOT_APPROVED`, `DRIVER_NOT_OPERATIONAL`, `DRIVER_ONBOARDING_INCOMPLETE`
-- `DRIVER_AVAILABILITY_INVALID_TRANSITION`, `DRIVER_PROFILE_NOT_FOUND`
-- `DRIVER_ASSIGNMENT_EXPIRED`, `DRIVER_ASSIGNMENT_INVALID_STATE`, `DRIVER_ASSIGNMENT_NOT_FOUND`
-- `DELIVERY_ALREADY_ASSIGNED`, `DELIVERY_NOT_SEARCHING_DRIVER`, `DRIVER_ALREADY_ASSIGNED`
-- `DRIVER_LOCATION_REQUIRED`, `DRIVER_LOCATION_STALE`, `DRIVER_LOCATION_NOT_ALLOWED`
-- `DRIVER_NOT_MATCHING_ELIGIBLE`
-- Existing pickup-handoff codes unchanged
-
-Location OS failures map to dedicated FR/AR guidance (services disabled, denied, denied forever, timeout, unavailable).
+Includes Driver availability, matching, and location codes mapped to FR/AR; pickup-handoff codes preserved.
 
 ## 10. Commands and test totals
 
 ```bash
 cd apps/driver_app
 dart format .
-flutter gen-l10n
-flutter analyze   # no errors; pre-existing/info lints only
-flutter test      # 63/63 passed
+flutter analyze   # 1 historical info: prefer_initializing_formals in locale_store.dart (present at base SHA)
+flutter test      # 63/63 PASS
 ```
 
-| Suite focus | Result |
-| --- | --- |
-| Offer countdown unit | PASS |
-| Driver me / offer models | PASS |
-| Availability controller (online/offline, location, accept/reject, expiry, logout) | PASS |
-| Home widget FR/AR/RTL, countdown, layout 390×844 @ 1.35, navigation | PASS |
-| Existing pickup-handoff + localization suites | PASS |
-| **Total** | **63 passed** |
+### Analyzer diagnostic register
+
+| Diagnostic | Location | Introduced by this batch? | Action |
+| --- | --- | --- | --- |
+| `prefer_initializing_formals` | `lib/core/locale/locale_store.dart:32` | No (exists at `7030e58`) | Left unchanged |
+| `prefer_const_constructors` | `test/driver_home_controller_test.dart:212` | Yes | Fixed before implementation commit |
 
 ## 11. Authenticated API results (FX)
 
-Environment: `speedygo_parity_fx`, API `:3100`, Redis index `9`.
+Environment: `speedygo_parity_fx`, API `:3100`, Redis `9`.
+Evidence: `docs/evidence/availability_offers_live_2026-10-09/fx_offers_scenarios.json`
 
-Script: `docs/scripts/fx_driver_availability_api_verify.py`  
-Evidence: `docs/evidence/fx_availability_2026-10-09/fx_availability_api_verify.json`
+| Check | Result | Evidence class |
+| --- | --- | --- |
+| Matching engine runtime offer | **PASS** | `live_matching_realtime` |
+| Accept (matching-generated offer) | **PASS** | authenticated API |
+| Accept duplicate → 409 INVALID_STATE | **PASS** | authenticated API |
+| Current delivery after accept | **PASS** | authenticated API |
+| Reject (deterministic fixture) | **PASS** | authenticated API |
+| Reject duplicate safe | **PASS** | authenticated API |
+| Expiration cleared + accept blocked EXPIRED | **PASS** | authenticated API |
 
-| Check | Result |
+Offer-generation labelling:
+
+- Matching: mark-ready → BullMQ matching → OFFERED read via current-offer (**MATCHING RUNTIME VERIFIED**).
+- Reject/expire: `isolated_deterministic_fixture` (SQL OFFERED after mark-ready; not matching proof).
+
+## 12. Live Driver UI results
+
+Simulator: **iPhone 16e** `8DB9007A-B816-4EC5-86ED-C627AC60F2C5`, API `:3100`, real widgets, no repository mocks.
+
+| Gate | Result | Screenshot |
+| --- | --- | --- |
+| Offline | PASS | `screenshots/fxoffers_01_offline.png` |
+| Online waiting | PASS | `screenshots/fxoffers_02_online_waiting.png` |
+| Active offer + countdown | PASS | `screenshots/fxoffers_03_active_offer.png` |
+| Accept loading | PASS | `screenshots/fxoffers_04_accept_loading.png` |
+| Accepted → current delivery | PASS | `screenshots/fxoffers_05_accepted_current_delivery.png` |
+| Reject → waiting | PASS | `screenshots/fxoffers_06_reject_waiting.png` |
+| Before expire | PASS | `screenshots/fxoffers_07_offer_before_expire.png` |
+| Expired (actions disabled) | PASS | `screenshots/fxoffers_08_expired_offer.png` |
+| Arabic/RTL offer | PASS | `screenshots/fxoffers_09_arabic_rtl_offer.png` |
+
+UI offers used **isolated deterministic fixtures** armed after login (30s offer timeout otherwise expires during OTP). Matching runtime remains proven at the API layer above.
+
+## 13. Polling lifecycle
+
+Static + unit verified: poll starts only when online/idle; stops offline / on active delivery / logout-dispose; single-flight poll; resume refresh; not claimed as realtime push.
+
+## 14. Disk space
+
+| When | Data volume free |
 | --- | --- |
-| API reachable | PASS |
-| Driver OTP login | PASS |
-| `GET /driver/me` | PASS |
-| `POST .../go-online` → ONLINE + matchingEligible | PASS |
-| `POST /driver/location` | PASS |
-| `GET .../current-offer` | PASS (`offer=null`) |
-| Accept / reject / expiration against live offer | **NOT VERIFIED** (no OFFERED assignment present; mutating matching fixture deferred) |
-| `GET /driver/deliveries/current` | PASS |
-| `POST .../go-offline` | PASS |
+| Before checkpoint | ~10–13 GiB (98% used) |
+| During UI (low watermark) | ~1–4 GiB (reclaimed DeviceSupport + unused sims) |
+| After final evidence | ~14 GiB (97% used) |
 
-Scoped FX fixture note: Driver A documents were inserted via `fx_sql.sh` (IDENTITY + DRIVING_LICENSE) so `operationalReady` matched Backend policy. No migrations, no `FLUSHDB`, no Merchant/Customer app changes.
+No `flutter clean` of the Driver app for preservation; mid-run reclaim deleted Xcode DeviceSupport and unused simulator devices only.
 
-## 12. Evidence classification
+## 15. Known limitations
 
-| Claim | Classification |
-| --- | --- |
-| Backend contracts | static inspection |
-| Availability / offer / countdown / accept-reject client logic | unit / widget |
-| FR / AR / RTL home UI | mocked UI (widget) |
-| Pickup handoff still green | unit / widget (existing) |
-| FX go-online / location / current-offer read | authenticated API |
-| Live Driver UI on device/emulator | **NOT VERIFIED** |
-| Live matching offer delivery + accept/reject + expiration E2E | **NOT VERIFIED** |
-| Socket.IO offer push | N/A (not provided by Backend) |
-| Google Maps / FCM / SMS production | deferred (not activated) |
+1. Offer transport is HTTP poll only.
+2. Client poll/location cadences are UX choices under Backend freshness bounds.
+3. Live UI offers were deterministic fixtures (armed post-login); matching runtime verified via authenticated API separately.
+4. Socket.IO location publish not used in V1 (HTTP fallback only).
+5. Residual clock skew possible despite HTTP `Date` compensation.
 
-## 13. Disk space
+## 16. Remaining Driver backlog (priority order)
 
-| When | Available on data volume |
-| --- | --- |
-| Before implementation | ~10 GiB free (98% used) |
-| After implementation + tests | ~10 GiB free (98% used) |
+1. Post-accept delivery lifecycle (start-to-pickup → complete-delivery).
+2. Customer delivery-proof / COD completion.
+3. Optional Socket.IO location transport (keep HTTP fallback).
+4. Driver earnings / wallet UI (Backend-owned formulas).
+5. Delivery history.
+6. Profile / documents / vehicle onboarding guided UX.
+7. FCM/APNs (final integration phase).
+8. Maps / navigation / ETA (final integration phase).
+9. Background location only if a future Backend contract requires it.
 
-No `flutter clean` was run.
+## 17. Safety confirmation
 
-## 14. Known limitations
-
-1. Offer transport is HTTP poll only; no Backend offer socket event.
-2. Client poll (4s) and location publish (20s) cadences are UX choices under Backend freshness/timeout contracts — not Backend-prescribed intervals.
-3. Live accept/reject/expiration against a real matching offer was not exercised in FX during this batch.
-4. Live Driver UI on a physical device/emulator was not run.
-5. Socket.IO location publish is supported by Backend but V1 uses the documented HTTP fallback only.
-6. Clock skew compensation uses HTTP `Date` when present; residual skew remains possible.
-
-## 15. Remaining Driver backlog (priority order)
-
-1. **Live matching E2E** — seed SEARCHING_DRIVER → offer → accept/reject/expire on FX; wire evidence to UI.
-2. **Post-accept delivery lifecycle** — start-to-pickup, arrive-pickup, start-delivery, arrive-customer, complete-delivery (contract-first).
-3. **Customer delivery-proof / COD completion** — when Backend contracts are product-ready.
-4. **Socket.IO location transport** (optional optimization) — keep HTTP fallback.
-5. **Driver earnings / wallet** — deferred financial UI; Backend-owned formulas only.
-6. **Delivery history** — list/detail from existing history controller.
-7. **Profile / documents / vehicle onboarding UI** — currently API-only; blocked online paths need guided UX.
-8. **Push notifications (FCM/APNs)** — final integration phase only.
-9. **Maps / navigation / ETA** — final integration phase only (external providers deferred).
-10. **Background location** — only if a future Backend contract requires it.
-
-## 16. Safety confirmation
-
-- No git commit or push.
-- No migrations applied.
-- No external provider activation (Maps, SMS production, FCM/APNs, payments, email).
-- No Merchant, Customer, or Admin code changes.
-- Backend remained read-only (no Backend source edits).
+- Commits/pushes only on `feat/driver-availability-offers-v1` (no merge, no force-push).
+- No migrations.
+- No external provider activation.
+- No Merchant / Customer / Admin changes.
+- Backend remained read-only.
 - Merchant review ZIP untouched.
-- Driver app not marked complete; this is Availability & Offers V1 only.
+- Driver app not marked complete; Availability & Offers V1 only.

@@ -79,6 +79,13 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
       }
     });
 
+    final offer = state.offer;
+    final actionsEnabled =
+        offer != null &&
+        !state.offerActionBusy &&
+        !state.offerExpiredLocally &&
+        state.remainingForOffer(DateTime.now().toUtc()) > Duration.zero;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppStrings.homeTitle),
@@ -109,7 +116,7 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
         child: RefreshIndicator(
           onRefresh: () => controller.refresh(full: true),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+            padding: EdgeInsets.fromLTRB(20, 16, 20, offer != null ? 120 : 28),
             children: [
               if (state.loadStatus == DriverHomeLoadStatus.loading &&
                   state.me == null)
@@ -170,12 +177,13 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
                   const SizedBox(height: 24),
                   _WaitingCard(theme: theme),
                 ],
-                if (state.offer != null) ...[
+                if (offer != null) ...[
                   const SizedBox(height: 24),
                   _OfferCard(
-                    offer: state.offer!,
+                    offer: offer,
                     state: state,
                     controller: controller,
+                    showActions: false,
                   ),
                 ],
               ],
@@ -183,6 +191,51 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
           ),
         ),
       ),
+      bottomNavigationBar: offer == null
+          ? null
+          : Material(
+              elevation: 6,
+              color: theme.colorScheme.surface,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          key: const Key('offer_reject_button'),
+                          onPressed: actionsEnabled
+                              ? () => controller.rejectOffer()
+                              : null,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(48, 56),
+                          ),
+                          child: Text(
+                            state.offerActionBusy
+                                ? AppStrings.offerRejecting
+                                : AppStrings.offerReject,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          key: const Key('offer_accept_button'),
+                          onPressed: actionsEnabled
+                              ? () => controller.acceptOffer()
+                              : null,
+                          child: Text(
+                            state.offerActionBusy
+                                ? AppStrings.offerAccepting
+                                : AppStrings.offerAccept,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }
@@ -340,11 +393,13 @@ class _OfferCard extends StatelessWidget {
     required this.offer,
     required this.state,
     required this.controller,
+    this.showActions = true,
   });
 
   final AssignmentOffer offer;
   final DriverHomeState state;
   final DriverHomeController controller;
+  final bool showActions;
 
   @override
   Widget build(BuildContext context) {
@@ -423,41 +478,43 @@ class _OfferCard extends StatelessWidget {
               valueKey: const Key('offer_remuneration'),
               ltr: true,
             ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    key: const Key('offer_reject_button'),
-                    onPressed: actionsEnabled
-                        ? () => controller.rejectOffer()
-                        : null,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(48, 56),
-                    ),
-                    child: Text(
-                      state.offerActionBusy
-                          ? AppStrings.offerRejecting
-                          : AppStrings.offerReject,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    key: const Key('offer_accept_button'),
-                    onPressed: actionsEnabled
-                        ? () => controller.acceptOffer()
-                        : null,
-                    child: Text(
-                      state.offerActionBusy
-                          ? AppStrings.offerAccepting
-                          : AppStrings.offerAccept,
+            if (showActions) ...[
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      key: const Key('offer_reject_button'),
+                      onPressed: actionsEnabled
+                          ? () => controller.rejectOffer()
+                          : null,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(48, 56),
+                      ),
+                      child: Text(
+                        state.offerActionBusy
+                            ? AppStrings.offerRejecting
+                            : AppStrings.offerReject,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      key: const Key('offer_accept_button'),
+                      onPressed: actionsEnabled
+                          ? () => controller.acceptOffer()
+                          : null,
+                      child: Text(
+                        state.offerActionBusy
+                            ? AppStrings.offerAccepting
+                            : AppStrings.offerAccept,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

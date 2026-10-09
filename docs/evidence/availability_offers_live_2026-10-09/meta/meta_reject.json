@@ -1,0 +1,20 @@
+{
+  "runId": "ui_offers_1791572092",
+  "phase": "reject",
+  "fixtureType": "isolated_deterministic_fixture",
+  "api": "http://127.0.0.1:3100/api/v1",
+  "database": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "driverPhoneMasked": "+213550009***",
+  "orderId": "01a12204-acc8-70c5-a7b3-83f1476579a4",
+  "deliveryId": "01a12204-ad47-7f59-84ef-b32a9f2853f1",
+  "orderIdSuffix": "476579a4",
+  "deliveryIdSuffix": "9f2853f1",
+  "availabilityPrepared": "ONLINE",
+  "offerSeeded": true,
+  "armOffer": true,
+  "assignedOffsetSeconds": 0,
+  "assignmentId": "0d00f0f0-fa00-7000-8000-d21ed6cb180a",
+  "assignmentIdSuffix": "d6cb180a",
+  "armedAt": "2026-10-09T18:55:32Z"
+}

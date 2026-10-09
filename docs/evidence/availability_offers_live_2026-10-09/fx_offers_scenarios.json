@@ -1,0 +1,120 @@
+{
+  "runId": "offers_1791570835",
+  "api": "http://127.0.0.1:3100/api/v1",
+  "database": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "driverPhoneMasked": "+213550009***",
+  "fixtureTypes": [
+    "matching_engine_runtime",
+    "isolated_deterministic_fixture"
+  ],
+  "created": {
+    "orderCount": 4,
+    "assignmentCount": 4
+  },
+  "cleanup": "released_assignments=4 orders=4 open_offered_left=0",
+  "results": [
+    {
+      "check": "fx_api_reachable",
+      "result": "PASS",
+      "detail": "http=200",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "auth_sessions",
+      "result": "PASS",
+      "detail": "merchant+driver authenticated",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "orders_prefetched",
+      "result": "PASS",
+      "detail": "count=4",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "matching_engine_runtime",
+      "result": "PASS",
+      "detail": "order=01a121f1\u2026 assignment=01a121f1\u2026 expiresAt=2026-10-09T18:34:27.175Z",
+      "evidence": "live_matching_realtime"
+    },
+    {
+      "check": "accept_offer_visible",
+      "result": "PASS",
+      "detail": "method=matching_engine_runtime expiresAt=2026-10-09T18:34:31.994Z remuneration=15000",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "accept_scenario",
+      "result": "PASS",
+      "detail": "http=200 status=ACCEPTED method=matching_engine_runtime code=None",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "accept_duplicate_safe",
+      "result": "PASS",
+      "detail": "http=409 code=DRIVER_ASSIGNMENT_INVALID_STATE",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "accept_current_delivery",
+      "result": "PASS",
+      "detail": "http=200 deliveryStatus=DRIVER_ASSIGNED assignmentStatus=ACCEPTED",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "reject_scenario",
+      "result": "PASS",
+      "detail": "http=200 code=None method=isolated_deterministic_fixture",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "reject_duplicate_safe",
+      "result": "PASS",
+      "detail": "http=409 code=DRIVER_ASSIGNMENT_INVALID_STATE",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "reject_assignment_released",
+      "result": "PASS",
+      "detail": "db=REJECTED|2026-10-09 19:34:07.072+01 current_offer=null",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "reject_no_active_delivery",
+      "result": "PASS",
+      "detail": "http=200 delivery=null",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "expiration_offer_readable",
+      "result": "PASS",
+      "detail": "expiresAt=2026-10-09T18:34:11.187Z method=isolated_deterministic_fixture",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "expiration_offer_cleared",
+      "result": "PASS",
+      "detail": "http=200 offer=null",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "expiration_accept_blocked",
+      "result": "PASS",
+      "detail": "http=409 code=DRIVER_ASSIGNMENT_EXPIRED",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "expiration_assignment_terminal",
+      "result": "PASS",
+      "detail": "db_status=EXPIRED",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "cleanup",
+      "result": "PASS",
+      "detail": "released_assignments=4 orders=4 open_offered_left=0",
+      "evidence": "static_inspection"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "runId": "live_ui_1791572306",
+  "driverGitSha": "013074be20167fbad0bbb1629440dbe93a217d6f",
+  "backendGitSha": "3131c4ec0e0d3295f1eeedf5e13f3cbdeb3c02b4",
+  "simulator": "iPhone 16e",
+  "simulatorUdid": "8DB9007A-B816-4EC5-86ED-C627AC60F2C5",
+  "os": "iOS Simulator (darwin 25.3.0)",
+  "apiPort": 3100,
+  "databaseAlias": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "fixtureType": "isolated_deterministic_fixture",
+  "offerCreationMethodUI": "SQL OFFERED seed after UI login (armed; labelled deterministic)",
+  "offerCreationMethodAPI": "matching_engine_runtime for accept + deterministic for reject/expire",
+  "gates": {
+    "analyzer": "PASS_with_1_historical_info",
+    "unit_widget": "PASS_63",
+    "api_matching_runtime": "PASS",
+    "api_accept": "PASS",
+    "api_reject": "PASS",
+    "api_expiration": "PASS",
+    "ui_offline": "PASS",
+    "ui_waiting": "PASS",
+    "ui_accept": "PASS",
+    "ui_reject": "PASS",
+    "ui_expire": "PASS",
+    "ui_arabic_rtl": "PASS",
+    "polling": "PASS_static_and_unit"
+  },
+  "screenshotPaths": [
+    "screenshots/fxoffers_01_offline.png",
+    "screenshots/fxoffers_02_online_waiting.png",
+    "screenshots/fxoffers_03_active_offer.png",
+    "screenshots/fxoffers_04_accept_loading.png",
+    "screenshots/fxoffers_05_accepted_current_delivery.png",
+    "screenshots/fxoffers_06_reject_waiting.png",
+    "screenshots/fxoffers_07_offer_before_expire.png",
+    "screenshots/fxoffers_08_expired_offer.png",
+    "screenshots/fxoffers_09_arabic_rtl_offer.png"
+  ],
+  "cleanup": "scoped release of open OFFERED for fixture driver; availability OFFLINE",
+  "diskNote": "reclaimed DeviceSupport + unused simulators mid-run; see disk_*.txt"
+}
