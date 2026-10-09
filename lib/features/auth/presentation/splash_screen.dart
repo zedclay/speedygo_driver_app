@@ -25,7 +25,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final status = ref.read(sessionControllerProvider).status;
       switch (status) {
         case SessionStatus.signedIn:
-          context.go(AppRoutes.currentDelivery);
+          context.go(AppRoutes.home);
         case SessionStatus.needsDriverProfile:
         case SessionStatus.signedOut:
         case SessionStatus.unknown:

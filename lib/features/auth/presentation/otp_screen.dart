@@ -32,7 +32,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       final status = ref.read(sessionControllerProvider).status;
       if (!mounted) return;
       if (status == SessionStatus.signedIn) {
-        context.go(AppRoutes.currentDelivery);
+        context.go(AppRoutes.home);
       }
     } catch (_) {}
   }
