@@ -14,8 +14,7 @@ class AppStrings {
   static bool get isArabic => _code == 'ar';
   static String get languageCode => _code;
 
-  static String get appName =>
-      isArabic ? 'SpeedyGo سائق' : 'SpeedyGo Driver';
+  static String get appName => isArabic ? 'SpeedyGo سائق' : 'SpeedyGo Driver';
 
   static String get networkError => isArabic
       ? 'تعذّر الاتصال. أعد المحاولة.'
@@ -37,9 +36,8 @@ class AppStrings {
 
   static String get phoneContinue => isArabic ? 'متابعة' : 'Continuer';
 
-  static String get phoneInvalid => isArabic
-      ? 'أدخل رقمًا صالحًا.'
-      : 'Saisissez un numéro valide.';
+  static String get phoneInvalid =>
+      isArabic ? 'أدخل رقمًا صالحًا.' : 'Saisissez un numéro valide.';
 
   static String get otpTitle =>
       isArabic ? 'رمز التحقق' : 'Code de vérification';
@@ -49,7 +47,8 @@ class AppStrings {
 
   static String get otpVerify => isArabic ? 'تأكيد' : 'Valider';
 
-  static String get otpResend => isArabic ? 'إعادة إرسال الرمز' : 'Renvoyer le code';
+  static String get otpResend =>
+      isArabic ? 'إعادة إرسال الرمز' : 'Renvoyer le code';
 
   static String get deliveryTitle =>
       isArabic ? 'الطلب الحالي' : 'Course en cours';
@@ -107,8 +106,7 @@ class AppStrings {
       ? 'لا يوجد ملف سائق مرتبط بهذا الحساب.'
       : 'Aucun profil livreur n’est associé à ce compte.';
 
-  static String get languageSettingsTitle =>
-      isArabic ? 'اللغة' : 'Langue';
+  static String get languageSettingsTitle => isArabic ? 'اللغة' : 'Langue';
 
   static String get languageSettingsSubtitle => isArabic
       ? 'اختر لغة واجهة السائق. يُطبَّق التغيير فورًا دون تسجيل الخروج.'
@@ -153,6 +151,173 @@ class AppStrings {
       ? 'تغيّر التعيين. حدّث الطلبية.'
       : 'Cette affectation a changé. Actualisez la course.';
 
+  static String get homeTitle => isArabic ? 'التوفر' : 'Disponibilité';
+
+  static String get homeLoading =>
+      isArabic ? 'جاري تحميل حالة التوفر…' : 'Chargement de la disponibilité…';
+
+  static String get availabilityOnline => isArabic ? 'متصل' : 'En ligne';
+
+  static String get availabilityOffline => isArabic ? 'غير متصل' : 'Hors ligne';
+
+  static String get availabilitySuspended => isArabic ? 'موقوف' : 'Suspendu';
+
+  static String get availabilityOfflineAfterCurrent => isArabic
+      ? 'غير متصل بعد التوصيل الحالي'
+      : 'Hors ligne après la course en cours';
+
+  static String get goOnline => isArabic ? 'الاتصال' : 'Passer en ligne';
+
+  static String get goOffline => isArabic ? 'قطع الاتصال' : 'Passer hors ligne';
+
+  static String get goingOnline =>
+      isArabic ? 'جاري الاتصال…' : 'Mise en ligne…';
+
+  static String get goingOffline =>
+      isArabic ? 'جاري قطع الاتصال…' : 'Mise hors ligne…';
+
+  static String get waitingForOffer =>
+      isArabic ? 'في انتظار عرض توصيل…' : 'En attente d’une offre…';
+
+  static String get waitingForOfferHint => isArabic
+      ? 'ابقَ متصلًا مع موقع مفعّل لاستلام العروض.'
+      : 'Restez en ligne avec la localisation active pour recevoir des offres.';
+
+  static String get offerTitle => isArabic ? 'عرض توصيل' : 'Offre de livraison';
+
+  static String get offerCountdownLabel =>
+      isArabic ? 'ينتهي خلال' : 'Expire dans';
+
+  static String get offerExpired =>
+      isArabic ? 'انتهت صلاحية العرض.' : 'Cette offre a expiré.';
+
+  static String get offerAccept => isArabic ? 'قبول' : 'Accepter';
+
+  static String get offerReject => isArabic ? 'رفض' : 'Refuser';
+
+  static String get offerAccepting =>
+      isArabic ? 'جاري القبول…' : 'Acceptation…';
+
+  static String get offerRejecting => isArabic ? 'جاري الرفض…' : 'Refus…';
+
+  static String get offerPickupLabel =>
+      isArabic ? 'الاستلام من' : 'Retrait chez';
+
+  static String get offerRemunerationLabel =>
+      isArabic ? 'أجر التوصيل' : 'Rémunération';
+
+  static String get offerPickupDistanceLabel =>
+      isArabic ? 'المسافة إلى الاستلام' : 'Distance retrait';
+
+  static String get offerDeliveryDistanceLabel =>
+      isArabic ? 'المسافة إلى التسليم' : 'Distance livraison';
+
+  static String get offerOrderRefLabel => isArabic ? 'المرجع' : 'Référence';
+
+  static String get openCurrentDelivery =>
+      isArabic ? 'فتح الطلب الحالي' : 'Ouvrir la course en cours';
+
+  static String get activeDeliveryBanner => isArabic
+      ? 'لديك طلب نشط. أكمل التسليم قبل عروض جديدة.'
+      : 'Vous avez une course active. Terminez-la avant de nouvelles offres.';
+
+  static String get locationServicesDisabled => isArabic
+      ? 'فعّل خدمات الموقع على الجهاز.'
+      : 'Activez les services de localisation sur l’appareil.';
+
+  static String get locationPermissionDenied => isArabic
+      ? 'إذن الموقع مطلوب لاستلام العروض وقبولها.'
+      : 'L’autorisation de localisation est requise pour recevoir et accepter des offres.';
+
+  static String get locationPermissionDeniedForever => isArabic
+      ? 'إذن الموقع مرفوض نهائيًا. فعّله من إعدادات النظام.'
+      : 'Localisation refusée définitivement. Activez-la dans les réglages système.';
+
+  static String get locationUnavailable => isArabic
+      ? 'تعذّر الحصول على الموقع.'
+      : 'Impossible d’obtenir la position.';
+
+  static String get locationTimeout => isArabic
+      ? 'انتهت مهلة الحصول على الموقع.'
+      : 'Délai dépassé pour obtenir la position.';
+
+  static String get locationPublishing =>
+      isArabic ? 'إرسال الموقع…' : 'Envoi de la position…';
+
+  static String get driverNotApproved => isArabic
+      ? 'حسابك غير معتمد بعد. أكمل التحقق أولًا.'
+      : 'Votre compte n’est pas encore approuvé. Terminez la vérification.';
+
+  static String get driverNotOperational => isArabic
+      ? 'الملف غير جاهز للتشغيل (وثائق أو مركبة ناقصة).'
+      : 'Profil non opérationnel (documents ou véhicule incomplets).';
+
+  static String get driverAvailabilityInvalid => isArabic
+      ? 'تعذّر تغيير حالة التوفر. حدّث ثم أعد المحاولة.'
+      : 'Impossible de changer la disponibilité. Actualisez puis réessayez.';
+
+  static String get offerTakenOrStale => isArabic
+      ? 'لم يعد هذا العرض متاحًا.'
+      : 'Cette offre n’est plus disponible.';
+
+  static String get offerLocationRequired => isArabic
+      ? 'يلزم موقع حديث لقبول العرض.'
+      : 'Une position récente est requise pour accepter l’offre.';
+
+  static String get offerLocationStale => isArabic
+      ? 'موقعك قديم. أعد المحاولة بعد تحديث الموقع.'
+      : 'Votre position est obsolète. Réessayez après actualisation.';
+
+  static String get notMatchingEligible => isArabic
+      ? 'لست مؤهلًا للمطابقة حاليًا.'
+      : 'Vous n’êtes pas éligible au matching pour le moment.';
+
+  static String get metersUnit => isArabic ? 'م' : 'm';
+
+  static String locationErrorFor(String failureName) {
+    switch (failureName) {
+      case 'servicesDisabled':
+        return locationServicesDisabled;
+      case 'permissionDenied':
+        return locationPermissionDenied;
+      case 'permissionDeniedForever':
+        return locationPermissionDeniedForever;
+      case 'timeout':
+        return locationTimeout;
+      case 'unavailable':
+      default:
+        return locationUnavailable;
+    }
+  }
+
+  static String availabilityStatusLabel(String? status) {
+    switch (status) {
+      case 'ONLINE':
+        return availabilityOnline;
+      case 'OFFLINE_AFTER_CURRENT_DELIVERY':
+        return availabilityOfflineAfterCurrent;
+      case 'SUSPENDED':
+        return availabilitySuspended;
+      case 'OFFLINE':
+      default:
+        return availabilityOffline;
+    }
+  }
+
+  static String formatMinorUnits(String minor) {
+    final value = int.tryParse(minor) ?? 0;
+    final major = (value / 100).toStringAsFixed(value % 100 == 0 ? 0 : 2);
+    return isArabic ? '$major د.ج' : '$major DA';
+  }
+
+  static String formatDistanceMeters(int meters) {
+    if (meters >= 1000) {
+      final km = (meters / 1000).toStringAsFixed(1);
+      return isArabic ? '$km كم' : '$km km';
+    }
+    return '$meters $metersUnit';
+  }
+
   static String errorForCode(String? code) {
     switch (code) {
       case 'PICKUP_HANDOFF_CODE_INVALID':
@@ -174,6 +339,31 @@ class AppStrings {
         return invalidState;
       case 'DRIVER_DELIVERY_NOT_FOUND':
         return deliveryEmpty;
+      case 'DRIVER_NOT_APPROVED':
+        return driverNotApproved;
+      case 'DRIVER_NOT_OPERATIONAL':
+      case 'DRIVER_ONBOARDING_INCOMPLETE':
+        return driverNotOperational;
+      case 'DRIVER_AVAILABILITY_INVALID_TRANSITION':
+        return driverAvailabilityInvalid;
+      case 'DRIVER_PROFILE_NOT_FOUND':
+        return noDriverProfile;
+      case 'DRIVER_ASSIGNMENT_EXPIRED':
+        return offerExpired;
+      case 'DRIVER_ASSIGNMENT_INVALID_STATE':
+      case 'DRIVER_ASSIGNMENT_NOT_FOUND':
+      case 'DELIVERY_ALREADY_ASSIGNED':
+      case 'DELIVERY_NOT_SEARCHING_DRIVER':
+      case 'DRIVER_ALREADY_ASSIGNED':
+        return offerTakenOrStale;
+      case 'DRIVER_LOCATION_REQUIRED':
+        return offerLocationRequired;
+      case 'DRIVER_LOCATION_STALE':
+        return offerLocationStale;
+      case 'DRIVER_NOT_MATCHING_ELIGIBLE':
+        return notMatchingEligible;
+      case 'DRIVER_LOCATION_NOT_ALLOWED':
+        return locationPermissionDenied;
       case 'NETWORK':
         return networkError;
       default:

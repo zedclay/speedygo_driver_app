@@ -62,9 +62,7 @@ Widget _app({
           GlobalCupertinoLocalizations.delegate,
         ],
         builder: (context, child) => Directionality(
-          textDirection: locale == 'ar'
-              ? TextDirection.rtl
-              : TextDirection.ltr,
+          textDirection: locale == 'ar' ? TextDirection.rtl : TextDirection.ltr,
           child: child!,
         ),
         home: home,
@@ -109,12 +107,24 @@ void main() {
 
   test('error and status strings differ by locale without leaking codes', () {
     AppStrings.bind('fr');
-    expect(AppStrings.errorForCode('PICKUP_HANDOFF_CODE_INVALID'), contains('incorrect'));
+    expect(
+      AppStrings.errorForCode('PICKUP_HANDOFF_CODE_INVALID'),
+      contains('incorrect'),
+    );
     expect(AppStrings.deliveryStatusLabel('AT_PICKUP'), contains('commerçant'));
     AppStrings.bind('ar');
-    expect(AppStrings.errorForCode('PICKUP_HANDOFF_CODE_INVALID'), isNot(contains('incorrect')));
-    expect(RegExp(r'[\u0600-\u06FF]').hasMatch(AppStrings.deliveryTitle), isTrue);
-    expect(AppStrings.errorForCode('PICKUP_HANDOFF_CODE_INVALID'), isNot(contains('PICKUP_')));
+    expect(
+      AppStrings.errorForCode('PICKUP_HANDOFF_CODE_INVALID'),
+      isNot(contains('incorrect')),
+    );
+    expect(
+      RegExp(r'[\u0600-\u06FF]').hasMatch(AppStrings.deliveryTitle),
+      isTrue,
+    );
+    expect(
+      AppStrings.errorForCode('PICKUP_HANDOFF_CODE_INVALID'),
+      isNot(contains('PICKUP_')),
+    );
   });
 
   testWidgets('language settings switches locale and persists', (tester) async {
@@ -154,7 +164,9 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(find.byKey(const Key('pickup_code_field')), findsOneWidget);
         expect(find.byKey(const Key('confirm_pickup_button')), findsOneWidget);
-        final button = tester.getSize(find.byKey(const Key('confirm_pickup_button')));
+        final button = tester.getSize(
+          find.byKey(const Key('confirm_pickup_button')),
+        );
         expect(button.height, greaterThanOrEqualTo(48));
         expect(find.byType(OverflowBar), findsNothing);
       }

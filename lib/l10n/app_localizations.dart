@@ -367,6 +367,246 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Cette affectation a changé. Actualisez la course.'**
   String get assignmentConflict;
+
+  /// No description provided for @homeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibilité'**
+  String get homeTitle;
+
+  /// No description provided for @homeLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement de la disponibilité…'**
+  String get homeLoading;
+
+  /// No description provided for @availabilityOnline.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get availabilityOnline;
+
+  /// No description provided for @availabilityOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne'**
+  String get availabilityOffline;
+
+  /// No description provided for @availabilitySuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suspendu'**
+  String get availabilitySuspended;
+
+  /// No description provided for @availabilityOfflineAfterCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne après la course en cours'**
+  String get availabilityOfflineAfterCurrent;
+
+  /// No description provided for @goOnline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer en ligne'**
+  String get goOnline;
+
+  /// No description provided for @goOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer hors ligne'**
+  String get goOffline;
+
+  /// No description provided for @goingOnline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise en ligne…'**
+  String get goingOnline;
+
+  /// No description provided for @goingOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise hors ligne…'**
+  String get goingOffline;
+
+  /// No description provided for @waitingForOffer.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente d’une offre…'**
+  String get waitingForOffer;
+
+  /// No description provided for @waitingForOfferHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restez en ligne avec la localisation active pour recevoir des offres.'**
+  String get waitingForOfferHint;
+
+  /// No description provided for @offerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre de livraison'**
+  String get offerTitle;
+
+  /// No description provided for @offerCountdownLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expire dans'**
+  String get offerCountdownLabel;
+
+  /// No description provided for @offerExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette offre a expiré.'**
+  String get offerExpired;
+
+  /// No description provided for @offerAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get offerAccept;
+
+  /// No description provided for @offerReject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get offerReject;
+
+  /// No description provided for @offerAccepting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acceptation…'**
+  String get offerAccepting;
+
+  /// No description provided for @offerRejecting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refus…'**
+  String get offerRejecting;
+
+  /// No description provided for @offerPickupLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait chez'**
+  String get offerPickupLabel;
+
+  /// No description provided for @offerRemunerationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rémunération'**
+  String get offerRemunerationLabel;
+
+  /// No description provided for @offerPickupDistanceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance retrait'**
+  String get offerPickupDistanceLabel;
+
+  /// No description provided for @offerDeliveryDistanceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance livraison'**
+  String get offerDeliveryDistanceLabel;
+
+  /// No description provided for @offerOrderRefLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence'**
+  String get offerOrderRefLabel;
+
+  /// No description provided for @openCurrentDelivery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir la course en cours'**
+  String get openCurrentDelivery;
+
+  /// No description provided for @activeDeliveryBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez une course active. Terminez-la avant de nouvelles offres.'**
+  String get activeDeliveryBanner;
+
+  /// No description provided for @locationServicesDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activez les services de localisation sur l’appareil.'**
+  String get locationServicesDisabled;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’autorisation de localisation est requise pour recevoir et accepter des offres.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @locationPermissionDeniedForever.
+  ///
+  /// In fr, this message translates to:
+  /// **'Localisation refusée définitivement. Activez-la dans les réglages système.'**
+  String get locationPermissionDeniedForever;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’obtenir la position.'**
+  String get locationUnavailable;
+
+  /// No description provided for @locationTimeout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délai dépassé pour obtenir la position.'**
+  String get locationTimeout;
+
+  /// No description provided for @locationPublishing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoi de la position…'**
+  String get locationPublishing;
+
+  /// No description provided for @driverNotApproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte n’est pas encore approuvé. Terminez la vérification.'**
+  String get driverNotApproved;
+
+  /// No description provided for @driverNotOperational.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil non opérationnel (documents ou véhicule incomplets).'**
+  String get driverNotOperational;
+
+  /// No description provided for @driverAvailabilityInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de changer la disponibilité. Actualisez puis réessayez.'**
+  String get driverAvailabilityInvalid;
+
+  /// No description provided for @offerTakenOrStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette offre n’est plus disponible.'**
+  String get offerTakenOrStale;
+
+  /// No description provided for @offerLocationRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une position récente est requise pour accepter l’offre.'**
+  String get offerLocationRequired;
+
+  /// No description provided for @offerLocationStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre position est obsolète. Réessayez après actualisation.'**
+  String get offerLocationStale;
+
+  /// No description provided for @notMatchingEligible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’êtes pas éligible au matching pour le moment.'**
+  String get notMatchingEligible;
+
+  /// No description provided for @metersUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'m'**
+  String get metersUnit;
 }
 
 class _AppLocalizationsDelegate

@@ -21,6 +21,14 @@ class ApiEndpoints {
   static const logoutPath = '/auth/logout';
   static const mePath = '/auth/me';
   static const driverMePath = '/driver/me';
+  static const driverGoOnlinePath = '/driver/availability/go-online';
+  static const driverGoOfflinePath = '/driver/availability/go-offline';
+  static const driverLocationPath = '/driver/location';
+  static const driverCurrentOfferPath = '/driver/assignments/current-offer';
+  static String driverAcceptOfferPath(String assignmentId) =>
+      '/driver/assignments/$assignmentId/accept';
+  static String driverRejectOfferPath(String assignmentId) =>
+      '/driver/assignments/$assignmentId/reject';
   static const currentDeliveryPath = '/driver/deliveries/current';
   static const confirmPickupPath = '/driver/deliveries/current/confirm-pickup';
 }
@@ -31,6 +39,7 @@ class AppRoutes {
   static const splash = '/';
   static const phone = '/auth/phone';
   static const otp = '/auth/otp';
+  static const home = '/home';
   static const currentDelivery = '/delivery/current';
   static const languageSettings = '/settings/language';
 }

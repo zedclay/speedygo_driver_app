@@ -7,6 +7,7 @@ import 'package:speedygo_driver_app/features/auth/application/session_controller
 import 'package:speedygo_driver_app/features/auth/presentation/otp_screen.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/phone_screen.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/splash_screen.dart';
+import 'package:speedygo_driver_app/features/availability/presentation/driver_home_screen.dart';
 import 'package:speedygo_driver_app/features/delivery/presentation/current_delivery_screen.dart';
 import 'package:speedygo_driver_app/features/settings/presentation/language_settings_screen.dart';
 
@@ -29,17 +30,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           loc == AppRoutes.otp ||
           loc == AppRoutes.splash;
       final languageRoute = loc == AppRoutes.languageSettings;
+      final protected =
+          loc == AppRoutes.home || loc == AppRoutes.currentDelivery;
 
       if (session.status == SessionStatus.unknown &&
           loc != AppRoutes.splash &&
           !languageRoute) {
         return AppRoutes.splash;
       }
-      if (!authed && loc == AppRoutes.currentDelivery) {
+      if (!authed && protected) {
         return AppRoutes.phone;
       }
       if (authed && authRoute) {
-        return AppRoutes.currentDelivery;
+        return AppRoutes.home;
       }
       return null;
     },
@@ -55,6 +58,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.otp,
         builder: (context, state) => const OtpScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const DriverHomeScreen(),
       ),
       GoRoute(
         path: AppRoutes.currentDelivery,

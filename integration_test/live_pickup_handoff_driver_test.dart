@@ -69,9 +69,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await pumpFrames(tester, const Duration(milliseconds: 400));
     final container = ProviderContainer(
-      overrides: [
-        sessionStoreProvider.overrideWithValue(MemorySessionStore()),
-      ],
+      overrides: [sessionStoreProvider.overrideWithValue(MemorySessionStore())],
     );
     await container.read(localeControllerProvider.notifier).restore();
     await tester.pumpWidget(
@@ -89,8 +87,9 @@ void main() {
     expect(secretsPath.isNotEmpty, isTrue);
     expect(evidenceDir.isNotEmpty, isTrue);
 
-    final secrets =
-        jsonDecode(File(secretsPath).readAsStringSync()) as Map<String, dynamic>;
+    final secrets = jsonDecode(
+      File(secretsPath).readAsStringSync(),
+    ) as Map<String, dynamic>;
     final code = (secrets['pickupCode'] ?? '').toString();
     expect(code.length, 4);
 

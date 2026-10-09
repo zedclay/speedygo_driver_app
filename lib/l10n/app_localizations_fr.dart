@@ -153,4 +153,136 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get assignmentConflict =>
       'Cette affectation a changé. Actualisez la course.';
+
+  @override
+  String get homeTitle => 'Disponibilité';
+
+  @override
+  String get homeLoading => 'Chargement de la disponibilité…';
+
+  @override
+  String get availabilityOnline => 'En ligne';
+
+  @override
+  String get availabilityOffline => 'Hors ligne';
+
+  @override
+  String get availabilitySuspended => 'Suspendu';
+
+  @override
+  String get availabilityOfflineAfterCurrent =>
+      'Hors ligne après la course en cours';
+
+  @override
+  String get goOnline => 'Passer en ligne';
+
+  @override
+  String get goOffline => 'Passer hors ligne';
+
+  @override
+  String get goingOnline => 'Mise en ligne…';
+
+  @override
+  String get goingOffline => 'Mise hors ligne…';
+
+  @override
+  String get waitingForOffer => 'En attente d’une offre…';
+
+  @override
+  String get waitingForOfferHint =>
+      'Restez en ligne avec la localisation active pour recevoir des offres.';
+
+  @override
+  String get offerTitle => 'Offre de livraison';
+
+  @override
+  String get offerCountdownLabel => 'Expire dans';
+
+  @override
+  String get offerExpired => 'Cette offre a expiré.';
+
+  @override
+  String get offerAccept => 'Accepter';
+
+  @override
+  String get offerReject => 'Refuser';
+
+  @override
+  String get offerAccepting => 'Acceptation…';
+
+  @override
+  String get offerRejecting => 'Refus…';
+
+  @override
+  String get offerPickupLabel => 'Retrait chez';
+
+  @override
+  String get offerRemunerationLabel => 'Rémunération';
+
+  @override
+  String get offerPickupDistanceLabel => 'Distance retrait';
+
+  @override
+  String get offerDeliveryDistanceLabel => 'Distance livraison';
+
+  @override
+  String get offerOrderRefLabel => 'Référence';
+
+  @override
+  String get openCurrentDelivery => 'Ouvrir la course en cours';
+
+  @override
+  String get activeDeliveryBanner =>
+      'Vous avez une course active. Terminez-la avant de nouvelles offres.';
+
+  @override
+  String get locationServicesDisabled =>
+      'Activez les services de localisation sur l’appareil.';
+
+  @override
+  String get locationPermissionDenied =>
+      'L’autorisation de localisation est requise pour recevoir et accepter des offres.';
+
+  @override
+  String get locationPermissionDeniedForever =>
+      'Localisation refusée définitivement. Activez-la dans les réglages système.';
+
+  @override
+  String get locationUnavailable => 'Impossible d’obtenir la position.';
+
+  @override
+  String get locationTimeout => 'Délai dépassé pour obtenir la position.';
+
+  @override
+  String get locationPublishing => 'Envoi de la position…';
+
+  @override
+  String get driverNotApproved =>
+      'Votre compte n’est pas encore approuvé. Terminez la vérification.';
+
+  @override
+  String get driverNotOperational =>
+      'Profil non opérationnel (documents ou véhicule incomplets).';
+
+  @override
+  String get driverAvailabilityInvalid =>
+      'Impossible de changer la disponibilité. Actualisez puis réessayez.';
+
+  @override
+  String get offerTakenOrStale => 'Cette offre n’est plus disponible.';
+
+  @override
+  String get offerLocationRequired =>
+      'Une position récente est requise pour accepter l’offre.';
+
+  @override
+  String get offerLocationStale =>
+      'Votre position est obsolète. Réessayez après actualisation.';
+
+  @override
+  String get notMatchingEligible =>
+      'Vous n’êtes pas éligible au matching pour le moment.';
+
+  @override
+  String get metersUnit => 'm';
 }

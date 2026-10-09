@@ -128,10 +128,7 @@ class FakeAuthClient implements AuthClient {
 
   @override
   Future<TokenPair> refresh(String refreshToken) async {
-    throw ApiException(
-      AppStrings.sessionExpired,
-      code: 'AUTH_INVALID_TOKEN',
-    );
+    throw ApiException(AppStrings.sessionExpired, code: 'AUTH_INVALID_TOKEN');
   }
 
   @override

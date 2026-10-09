@@ -60,6 +60,12 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppStrings.deliveryTitle),
+        leading: IconButton(
+          key: const Key('delivery_back_home'),
+          tooltip: AppStrings.homeTitle,
+          onPressed: () => context.go(AppRoutes.home),
+          icon: const Icon(Icons.arrow_back),
+        ),
         actions: [
           IconButton(
             key: const Key('delivery_language'),

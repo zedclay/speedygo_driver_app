@@ -15,7 +15,9 @@ void main() {
       ProviderScope(
         overrides: [
           sessionStoreProvider.overrideWithValue(MemorySessionStore()),
-          localeStoreProvider.overrideWithValue(MemoryLocaleStore(locale: 'fr')),
+          localeStoreProvider.overrideWithValue(
+            MemoryLocaleStore(locale: 'fr'),
+          ),
           authApiProvider.overrideWithValue(FakeAuthClient()),
         ],
         child: const SpeedyGoApp(),

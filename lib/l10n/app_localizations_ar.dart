@@ -147,4 +147,129 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get assignmentConflict => 'تغيّر التعيين. حدّث الطلبية.';
+
+  @override
+  String get homeTitle => 'التوفر';
+
+  @override
+  String get homeLoading => 'جاري تحميل حالة التوفر…';
+
+  @override
+  String get availabilityOnline => 'متصل';
+
+  @override
+  String get availabilityOffline => 'غير متصل';
+
+  @override
+  String get availabilitySuspended => 'موقوف';
+
+  @override
+  String get availabilityOfflineAfterCurrent => 'غير متصل بعد التوصيل الحالي';
+
+  @override
+  String get goOnline => 'الاتصال';
+
+  @override
+  String get goOffline => 'قطع الاتصال';
+
+  @override
+  String get goingOnline => 'جاري الاتصال…';
+
+  @override
+  String get goingOffline => 'جاري قطع الاتصال…';
+
+  @override
+  String get waitingForOffer => 'في انتظار عرض توصيل…';
+
+  @override
+  String get waitingForOfferHint => 'ابقَ متصلًا مع موقع مفعّل لاستلام العروض.';
+
+  @override
+  String get offerTitle => 'عرض توصيل';
+
+  @override
+  String get offerCountdownLabel => 'ينتهي خلال';
+
+  @override
+  String get offerExpired => 'انتهت صلاحية العرض.';
+
+  @override
+  String get offerAccept => 'قبول';
+
+  @override
+  String get offerReject => 'رفض';
+
+  @override
+  String get offerAccepting => 'جاري القبول…';
+
+  @override
+  String get offerRejecting => 'جاري الرفض…';
+
+  @override
+  String get offerPickupLabel => 'الاستلام من';
+
+  @override
+  String get offerRemunerationLabel => 'أجر التوصيل';
+
+  @override
+  String get offerPickupDistanceLabel => 'المسافة إلى الاستلام';
+
+  @override
+  String get offerDeliveryDistanceLabel => 'المسافة إلى التسليم';
+
+  @override
+  String get offerOrderRefLabel => 'المرجع';
+
+  @override
+  String get openCurrentDelivery => 'فتح الطلب الحالي';
+
+  @override
+  String get activeDeliveryBanner =>
+      'لديك طلب نشط. أكمل التسليم قبل عروض جديدة.';
+
+  @override
+  String get locationServicesDisabled => 'فعّل خدمات الموقع على الجهاز.';
+
+  @override
+  String get locationPermissionDenied =>
+      'إذن الموقع مطلوب لاستلام العروض وقبولها.';
+
+  @override
+  String get locationPermissionDeniedForever =>
+      'إذن الموقع مرفوض نهائيًا. فعّله من إعدادات النظام.';
+
+  @override
+  String get locationUnavailable => 'تعذّر الحصول على الموقع.';
+
+  @override
+  String get locationTimeout => 'انتهت مهلة الحصول على الموقع.';
+
+  @override
+  String get locationPublishing => 'إرسال الموقع…';
+
+  @override
+  String get driverNotApproved => 'حسابك غير معتمد بعد. أكمل التحقق أولًا.';
+
+  @override
+  String get driverNotOperational =>
+      'الملف غير جاهز للتشغيل (وثائق أو مركبة ناقصة).';
+
+  @override
+  String get driverAvailabilityInvalid =>
+      'تعذّر تغيير حالة التوفر. حدّث ثم أعد المحاولة.';
+
+  @override
+  String get offerTakenOrStale => 'لم يعد هذا العرض متاحًا.';
+
+  @override
+  String get offerLocationRequired => 'يلزم موقع حديث لقبول العرض.';
+
+  @override
+  String get offerLocationStale => 'موقعك قديم. أعد المحاولة بعد تحديث الموقع.';
+
+  @override
+  String get notMatchingEligible => 'لست مؤهلًا للمطابقة حاليًا.';
+
+  @override
+  String get metersUnit => 'م';
 }

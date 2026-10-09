@@ -24,10 +24,7 @@ class SecureLocaleStore implements LocaleStore {
 
   @override
   Future<void> write(String languageCode) {
-    return _storage.write(
-      key: _key,
-      value: sanitizeLanguageCode(languageCode),
-    );
+    return _storage.write(key: _key, value: sanitizeLanguageCode(languageCode));
   }
 }
 

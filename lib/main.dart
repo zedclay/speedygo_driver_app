@@ -8,9 +8,6 @@ Future<void> main() async {
   final container = ProviderContainer();
   await container.read(localeControllerProvider.notifier).restore();
   runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const SpeedyGoApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const SpeedyGoApp()),
   );
 }
