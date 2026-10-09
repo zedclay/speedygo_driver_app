@@ -1,6 +1,6 @@
 {
   "runId": "live_ui_1791572306",
-  "driverGitSha": "013074be20167fbad0bbb1629440dbe93a217d6f",
+  "driverGitSha": "ee5056a6356bb38d8880d5a183feadcf431081cf",
   "backendGitSha": "3131c4ec0e0d3295f1eeedf5e13f3cbdeb3c02b4",
   "simulator": "iPhone 16e",
   "simulatorUdid": "8DB9007A-B816-4EC5-86ED-C627AC60F2C5",
@@ -38,5 +38,6 @@
     "screenshots/fxoffers_09_arabic_rtl_offer.png"
   ],
   "cleanup": "scoped release of open OFFERED for fixture driver; availability OFFLINE",
-  "diskNote": "reclaimed DeviceSupport + unused simulators mid-run; see disk_*.txt"
+  "diskNote": "reclaimed DeviceSupport + unused simulators mid-run; see disk_*.txt",
+  "evidenceCommitSha": "ee5056a6356bb38d8880d5a183feadcf431081cf"
 }
