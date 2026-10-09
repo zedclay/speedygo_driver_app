@@ -24,6 +24,58 @@ class DriverAvailabilityInfo {
   }
 }
 
+/// Metadata-only document row (`present` = a metadata row exists).
+class DriverDocumentInfo {
+  const DriverDocumentInfo({
+    required this.type,
+    required this.present,
+    this.expiryDate,
+  });
+
+  final String type;
+  final bool present;
+  final String? expiryDate;
+
+  factory DriverDocumentInfo.fromJson(Map<String, dynamic> json) {
+    return DriverDocumentInfo(
+      type: json['type']?.toString() ?? '',
+      present: json['present'] == true,
+      expiryDate: json['expiryDate']?.toString(),
+    );
+  }
+}
+
+class DriverVehicleInfo {
+  const DriverVehicleInfo({
+    required this.id,
+    required this.type,
+    required this.plateNumber,
+    required this.model,
+    required this.status,
+    this.color,
+  });
+
+  final String id;
+  final String type;
+  final String plateNumber;
+  final String model;
+  final String status;
+  final String? color;
+
+  bool get isActive => status == 'ACTIVE';
+
+  factory DriverVehicleInfo.fromJson(Map<String, dynamic> json) {
+    return DriverVehicleInfo(
+      id: json['id']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      plateNumber: json['plateNumber']?.toString() ?? '',
+      model: json['model']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      color: json['color']?.toString(),
+    );
+  }
+}
+
 class DriverMe {
   const DriverMe({
     required this.driverProfileExists,
@@ -38,6 +90,8 @@ class DriverMe {
     required this.availability,
     this.profileFullName,
     this.verificationStatus,
+    this.documents = const [],
+    this.vehicles = const [],
   });
 
   final bool driverProfileExists;
@@ -52,6 +106,28 @@ class DriverMe {
   final DriverAvailabilityInfo? availability;
   final String? profileFullName;
   final String? verificationStatus;
+  final List<DriverDocumentInfo> documents;
+  final List<DriverVehicleInfo> vehicles;
+
+  /// Onboarding data may only be edited while UNVERIFIED or REJECTED.
+  bool get isOnboardingEditable =>
+      verificationStatus == null ||
+      verificationStatus == 'UNVERIFIED' ||
+      verificationStatus == 'REJECTED';
+
+  DriverDocumentInfo? documentOf(String type) {
+    for (final doc in documents) {
+      if (doc.type == type) return doc;
+    }
+    return null;
+  }
+
+  DriverVehicleInfo? get activeVehicle {
+    for (final vehicle in vehicles) {
+      if (vehicle.isActive) return vehicle;
+    }
+    return null;
+  }
 
   bool get canAttemptGoOnline {
     if (!driverProfileExists || !operationalReady) return false;
@@ -81,6 +157,24 @@ class DriverMe {
       verificationStatus: profile is Map
           ? profile['verificationStatus']?.toString()
           : null,
+      documents: json['documents'] is List
+          ? (json['documents'] as List)
+                .whereType<Map<dynamic, dynamic>>()
+                .map(
+                  (e) =>
+                      DriverDocumentInfo.fromJson(Map<String, dynamic>.from(e)),
+                )
+                .toList(growable: false)
+          : const [],
+      vehicles: json['vehicles'] is List
+          ? (json['vehicles'] as List)
+                .whereType<Map<dynamic, dynamic>>()
+                .map(
+                  (e) =>
+                      DriverVehicleInfo.fromJson(Map<String, dynamic>.from(e)),
+                )
+                .toList(growable: false)
+          : const [],
     );
   }
 }

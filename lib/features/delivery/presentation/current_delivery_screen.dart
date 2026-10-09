@@ -3,9 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
+import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
-import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/delivery/application/current_delivery_controller.dart';
+import 'package:speedygo_driver_app/features/delivery/data/delivery_models.dart';
+import 'package:speedygo_driver_app/features/delivery/presentation/widgets/delivery_cod_card.dart';
+import 'package:speedygo_driver_app/features/delivery/presentation/widgets/delivery_help_card.dart';
+import 'package:speedygo_driver_app/features/delivery/presentation/widgets/delivery_nav_card.dart';
+import 'package:speedygo_driver_app/features/delivery/presentation/widgets/delivery_status_header.dart';
 import 'package:speedygo_driver_app/features/delivery/presentation/widgets/pickup_code_input.dart';
 
 class CurrentDeliveryScreen extends ConsumerStatefulWidget {
@@ -25,39 +30,27 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
     });
   }
 
-  Future<void> _confirmLogout() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppStrings.logoutConfirmTitle),
-        content: Text(AppStrings.logoutConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(AppStrings.cancel),
-          ),
-          FilledButton(
-            key: const Key('logout_confirm'),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(AppStrings.logoutConfirmAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true && mounted) {
-      await ref.read(sessionControllerProvider.notifier).logout();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.watch(localeControllerProvider);
     final state = ref.watch(currentDeliveryControllerProvider);
+    final controller = ref.read(currentDeliveryControllerProvider.notifier);
     final theme = Theme.of(context);
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
-    final showPickupUi = state.delivery?.canConfirmPickup == true;
+    final delivery = state.delivery;
+    final showPickupUi = delivery?.canConfirmPickup == true;
+    final stickyAction = (delivery != null && !delivery.isDelivered)
+        ? delivery.primaryAction
+        : null;
+    final showNav =
+        delivery != null &&
+        !delivery.isDelivered &&
+        delivery.deliveryStatus != 'AT_PICKUP';
+    final showCod =
+        delivery != null && delivery.canCollectCod && !delivery.isDelivered;
 
     return Scaffold(
+      backgroundColor: DriverTokens.surface,
       appBar: AppBar(
         title: Text(AppStrings.deliveryTitle),
         leading: IconButton(
@@ -78,16 +71,8 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
             tooltip: AppStrings.deliveryRefresh,
             onPressed: state.loadStatus == DeliveryLoadStatus.loading
                 ? null
-                : () => ref
-                      .read(currentDeliveryControllerProvider.notifier)
-                      .load(),
+                : () => controller.load(),
             icon: const Icon(Icons.refresh),
-          ),
-          IconButton(
-            key: const Key('delivery_logout'),
-            tooltip: AppStrings.logout,
-            onPressed: _confirmLogout,
-            icon: const Icon(Icons.logout),
           ),
         ],
       ),
@@ -95,7 +80,12 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(20, 16, 20, 24 + bottomInset),
+              padding: EdgeInsets.fromLTRB(
+                DriverTokens.edgeMargin,
+                DriverTokens.spaceLg,
+                DriverTokens.edgeMargin,
+                24 + bottomInset + (stickyAction != null ? 72 : 0),
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: constraints.maxHeight - 40,
@@ -110,35 +100,33 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
                           child: Column(
                             children: [
                               const CircularProgressIndicator(),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: DriverTokens.spaceLg),
                               Text(AppStrings.deliveryLoading),
                             ],
                           ),
                         ),
                       ),
                     if (state.loadStatus == DeliveryLoadStatus.empty)
-                      _EmptyState(
-                        onRetry: () => ref
-                            .read(currentDeliveryControllerProvider.notifier)
-                            .load(),
-                      ),
+                      _EmptyState(onRetry: controller.load),
                     if (state.loadStatus == DeliveryLoadStatus.error &&
-                        state.delivery == null)
+                        delivery == null)
                       _ErrorState(
                         message:
                             state.errorMessage ?? AppStrings.unexpectedError,
-                        onRetry: () => ref
-                            .read(currentDeliveryControllerProvider.notifier)
-                            .load(),
+                        onRetry: controller.load,
                       ),
-                    if (state.delivery != null) ...[
-                      _StatusCard(
-                        status: state.delivery!.deliveryStatus,
-                        orderId: state.delivery!.orderId,
-                        assignmentId: state.delivery!.assignmentId,
-                      ),
-                      const SizedBox(height: 20),
-                      if (state.successMessage != null)
+                    if (delivery != null) ...[
+                      if (delivery.isDelivered)
+                        _DeliveredBanner(
+                          onDone: () {
+                            controller.reset();
+                            context.go(AppRoutes.home);
+                          },
+                        )
+                      else
+                        DeliveryStatusHeader(delivery: delivery),
+                      const SizedBox(height: DriverTokens.spaceLg),
+                      if (state.successMessage != null && !delivery.isDelivered)
                         _Banner(
                           color: theme.colorScheme.primaryContainer,
                           foreground: theme.colorScheme.onPrimaryContainer,
@@ -152,29 +140,38 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
                           icon: Icons.error_outline,
                           message: state.errorMessage!,
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: DriverTokens.spaceMd),
+                      ],
+                      if (showNav) ...[
+                        DeliveryNavCard(delivery: delivery),
+                        const SizedBox(height: DriverTokens.spaceLg),
                       ],
                       if (showPickupUi) ...[
                         PickupCodeInput(
                           value: state.pickupCode,
                           enabled: !state.submitting,
-                          onChanged: (value) => ref
-                              .read(currentDeliveryControllerProvider.notifier)
-                              .updatePickupCode(value),
+                          onChanged: controller.updatePickupCode,
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: DriverTokens.spaceXl),
                       ],
-                      if (state.delivery!.isPickedUp &&
-                          !showPickupUi &&
-                          state.successMessage == null)
-                        Text(
-                          AppStrings.deliveryStatusLabel(
-                            state.delivery!.deliveryStatus,
-                          ),
-                          style: theme.textTheme.titleMedium,
+                      if (showCod) ...[
+                        DeliveryCodCard(
+                          amountInput: state.codAmountInput,
+                          collected: state.codCollected,
+                          busy: state.codBusy,
+                          canSubmit: state.canCollectCod,
+                          onChanged: controller.updateCodAmount,
+                          onSubmit: () {
+                            final amount = state.codAmountMinor;
+                            if (amount != null) {
+                              controller.collectCod(amount);
+                            }
+                          },
                         ),
+                        const SizedBox(height: DriverTokens.spaceLg),
+                      ],
+                      if (!delivery.isDelivered) const DeliveryHelpCard(),
                     ],
-                    SizedBox(height: showPickupUi ? 88 : 16),
                   ],
                 ),
               ),
@@ -182,121 +179,92 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
           },
         ),
       ),
-      bottomNavigationBar: showPickupUi
-          ? SafeArea(
+      bottomNavigationBar: stickyAction == null
+          ? null
+          : SafeArea(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
-                  20,
-                  8,
-                  20,
+                  DriverTokens.edgeMargin,
+                  DriverTokens.spaceSm,
+                  DriverTokens.edgeMargin,
                   12 + bottomInset.clamp(0, 24),
                 ),
                 child: SizedBox(
-                  height: 56,
+                  height: DriverTokens.actionHeight,
                   child: FilledButton(
-                    key: const Key('confirm_pickup_button'),
-                    onPressed: state.canSubmit
-                        ? () => ref
-                              .read(currentDeliveryControllerProvider.notifier)
-                              .confirmPickup()
-                        : null,
+                    key: stickyAction == DeliveryActions.confirmPickup
+                        ? const Key('confirm_pickup_button')
+                        : Key('delivery_action_$stickyAction'),
+                    onPressed: state.submitting
+                        ? null
+                        : stickyAction == DeliveryActions.confirmPickup
+                        ? (state.canSubmit
+                              ? () => controller.confirmPickup()
+                              : null)
+                        : () => controller.performAction(stickyAction),
                     child: state.submitting
                         ? const SizedBox(
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(AppStrings.confirmPickup),
+                        : Text(AppStrings.deliveryActionLabel(stickyAction)),
                   ),
                 ),
               ),
-            )
-          : null,
+            ),
     );
   }
 }
 
-class _StatusCard extends StatelessWidget {
-  const _StatusCard({
-    required this.status,
-    required this.orderId,
-    required this.assignmentId,
-  });
+class _DeliveredBanner extends StatelessWidget {
+  const _DeliveredBanner({required this.onDone});
 
-  final String status;
-  final String orderId;
-  final String assignmentId;
+  final VoidCallback onDone;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = _statusColor(theme, status);
-    return Semantics(
-      label:
-          '${AppStrings.statusLabel}: ${AppStrings.deliveryStatusLabel(status)}',
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outlineVariant),
-          color: theme.colorScheme.surface,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.local_shipping_outlined, color: color, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppStrings.deliveryStatusLabel(status),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w700,
-                    ),
+    return Container(
+      key: const Key('delivered_banner'),
+      padding: const EdgeInsets.all(DriverTokens.spaceLg),
+      decoration: BoxDecoration(
+        color: DriverTokens.successContainer,
+        borderRadius: BorderRadius.circular(DriverTokens.radiusLg),
+        border: Border.all(color: DriverTokens.success.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.check_circle, color: DriverTokens.success),
+              const SizedBox(width: DriverTokens.spaceMd),
+              Expanded(
+                child: Text(
+                  AppStrings.deliveredSuccess,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: DriverTokens.success,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: Text(
-                '${AppStrings.orderIdLabel}: $orderId',
-                textAlign: TextAlign.left,
-                style: theme.textTheme.bodyMedium,
               ),
+            ],
+          ),
+          const SizedBox(height: DriverTokens.spaceSm),
+          Text(AppStrings.deliveredBody, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: DriverTokens.spaceLg),
+          SizedBox(
+            height: DriverTokens.touchTarget,
+            child: FilledButton(
+              key: const Key('delivery_done_back'),
+              onPressed: onDone,
+              child: Text(AppStrings.backToOrders),
             ),
-            const SizedBox(height: 4),
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: Text(
-                '${AppStrings.assignmentLabel}: $assignmentId',
-                textAlign: TextAlign.left,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
-
-  Color _statusColor(ThemeData theme, String status) {
-    switch (status) {
-      case 'AT_PICKUP':
-        return theme.colorScheme.tertiary;
-      case 'PICKED_UP':
-      case 'IN_TRANSIT':
-        return theme.colorScheme.primary;
-      case 'DELIVERED':
-        return theme.colorScheme.secondary;
-      default:
-        return theme.colorScheme.onSurface;
-    }
   }
 }
 
@@ -311,11 +279,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         children: [
           const Icon(Icons.inbox_outlined, size: 48),
-          const SizedBox(height: 16),
+          const SizedBox(height: DriverTokens.spaceLg),
           Text(AppStrings.deliveryEmpty, textAlign: TextAlign.center),
-          const SizedBox(height: 16),
+          const SizedBox(height: DriverTokens.spaceLg),
           SizedBox(
-            height: 48,
+            height: DriverTokens.touchTarget,
             child: OutlinedButton(
               key: const Key('delivery_empty_retry'),
               onPressed: onRetry,
@@ -344,11 +312,11 @@ class _ErrorState extends StatelessWidget {
             size: 48,
             color: Theme.of(context).colorScheme.error,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: DriverTokens.spaceLg),
           Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 16),
+          const SizedBox(height: DriverTokens.spaceLg),
           SizedBox(
-            height: 48,
+            height: DriverTokens.touchTarget,
             child: FilledButton(
               key: const Key('delivery_error_retry'),
               onPressed: onRetry,
@@ -378,11 +346,11 @@ class _Banner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: DriverTokens.spaceMd),
+      padding: const EdgeInsets.all(DriverTokens.spaceMd),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(DriverTokens.radiusMd),
       ),
       child: Row(
         children: [

@@ -27,6 +27,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         case SessionStatus.signedIn:
           context.go(AppRoutes.home);
         case SessionStatus.needsDriverProfile:
+          context.go(AppRoutes.onboardingProfile);
         case SessionStatus.signedOut:
         case SessionStatus.unknown:
           context.go(AppRoutes.phone);

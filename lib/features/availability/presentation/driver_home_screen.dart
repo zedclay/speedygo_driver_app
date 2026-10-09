@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
+import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
+import 'package:speedygo_driver_app/core/design_system/info_banner.dart';
+import 'package:speedygo_driver_app/core/design_system/operational_card.dart';
+import 'package:speedygo_driver_app/core/design_system/status_badge.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
-import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/availability/application/driver_home_controller.dart';
 import 'package:speedygo_driver_app/features/availability/application/offer_countdown.dart';
 import 'package:speedygo_driver_app/features/availability/data/offer_models.dart';
@@ -40,36 +43,11 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
     }
   }
 
-  Future<void> _confirmLogout() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppStrings.logoutConfirmTitle),
-        content: Text(AppStrings.logoutConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(AppStrings.cancel),
-          ),
-          FilledButton(
-            key: const Key('logout_confirm'),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(AppStrings.logoutConfirmAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true && mounted) {
-      await ref.read(sessionControllerProvider.notifier).logout();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.watch(localeControllerProvider);
     final state = ref.watch(driverHomeControllerProvider);
     final controller = ref.read(driverHomeControllerProvider.notifier);
-    final theme = Theme.of(context);
 
     ref.listen<DriverHomeState>(driverHomeControllerProvider, (prev, next) {
       if (next.acceptedNavigationPending &&
@@ -86,37 +64,20 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
         !state.offerExpiredLocally &&
         state.remainingForOffer(DateTime.now().toUtc()) > Duration.zero;
 
+    // Body only — shell owns AppBar / logout. Refresh via pull-to-refresh.
+    // Visual tokens from Stitch; availability/offer contracts unchanged.
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.homeTitle),
-        actions: [
-          IconButton(
-            key: const Key('home_language'),
-            tooltip: AppStrings.languageSettingsTitle,
-            onPressed: () => context.push(AppRoutes.languageSettings),
-            icon: const Icon(Icons.language),
-          ),
-          IconButton(
-            key: const Key('home_refresh'),
-            tooltip: AppStrings.deliveryRefresh,
-            onPressed: state.loadStatus == DriverHomeLoadStatus.loading
-                ? null
-                : () => controller.refresh(full: true),
-            icon: const Icon(Icons.refresh),
-          ),
-          IconButton(
-            key: const Key('home_logout'),
-            tooltip: AppStrings.logout,
-            onPressed: _confirmLogout,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => controller.refresh(full: true),
           child: ListView(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, offer != null ? 120 : 28),
+            padding: EdgeInsets.fromLTRB(
+              DriverTokens.edgeMargin,
+              DriverTokens.spaceLg,
+              DriverTokens.edgeMargin,
+              offer != null ? 120 : DriverTokens.spaceXl,
+            ),
             children: [
               if (state.loadStatus == DriverHomeLoadStatus.loading &&
                   state.me == null)
@@ -125,7 +86,7 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
                   child: Column(
                     children: [
                       const CircularProgressIndicator(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: DriverTokens.spaceLg),
                       Text(AppStrings.homeLoading),
                     ],
                   ),
@@ -133,35 +94,32 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
               else ...[
                 _AvailabilityCard(state: state, controller: controller),
                 if (state.locationMessage != null) ...[
-                  const SizedBox(height: 12),
-                  _InfoBanner(
+                  const SizedBox(height: DriverTokens.spaceMd),
+                  InfoBanner(
                     key: const Key('location_banner'),
                     message: state.locationMessage!,
-                    color: theme.colorScheme.errorContainer,
-                    foreground: theme.colorScheme.onErrorContainer,
+                    tone: StatusTone.danger,
                     icon: Icons.location_off_outlined,
                   ),
                 ],
                 if (state.errorMessage != null) ...[
-                  const SizedBox(height: 12),
-                  _InfoBanner(
+                  const SizedBox(height: DriverTokens.spaceMd),
+                  InfoBanner(
                     key: const Key('home_error_banner'),
                     message: state.errorMessage!,
-                    color: theme.colorScheme.errorContainer,
-                    foreground: theme.colorScheme.onErrorContainer,
+                    tone: StatusTone.danger,
                     icon: Icons.error_outline,
                   ),
                 ],
                 if (state.hasActiveDelivery) ...[
-                  const SizedBox(height: 16),
-                  _InfoBanner(
+                  const SizedBox(height: DriverTokens.spaceLg),
+                  InfoBanner(
                     key: const Key('active_delivery_banner'),
                     message: AppStrings.activeDeliveryBanner,
-                    color: theme.colorScheme.secondaryContainer,
-                    foreground: theme.colorScheme.onSecondaryContainer,
+                    tone: StatusTone.info,
                     icon: Icons.local_shipping_outlined,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: DriverTokens.spaceMd),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
@@ -174,11 +132,11 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
                 if (state.isOnline &&
                     !state.hasActiveDelivery &&
                     state.offer == null) ...[
-                  const SizedBox(height: 24),
-                  _WaitingCard(theme: theme),
+                  const SizedBox(height: DriverTokens.spaceXl),
+                  const _WaitingCard(),
                 ],
                 if (offer != null) ...[
-                  const SizedBox(height: 24),
+                  const SizedBox(height: DriverTokens.spaceXl),
                   _OfferCard(
                     offer: offer,
                     state: state,
@@ -195,10 +153,15 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
           ? null
           : Material(
               elevation: 6,
-              color: theme.colorScheme.surface,
+              color: DriverTokens.card,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                  padding: const EdgeInsets.fromLTRB(
+                    DriverTokens.edgeMargin,
+                    DriverTokens.spaceMd,
+                    DriverTokens.edgeMargin,
+                    DriverTokens.spaceMd,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -207,9 +170,6 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
                           onPressed: actionsEnabled
                               ? () => controller.rejectOffer()
                               : null,
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(48, 56),
-                          ),
                           child: Text(
                             state.offerActionBusy
                                 ? AppStrings.offerRejecting
@@ -217,7 +177,7 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: DriverTokens.spaceMd),
                       Expanded(
                         child: FilledButton(
                           key: const Key('offer_accept_button'),
@@ -252,24 +212,18 @@ class _AvailabilityCard extends StatelessWidget {
     final status = state.me?.availability?.status;
     final online = state.isOnline;
     final Color statusColor = switch (status) {
-      'ONLINE' => const Color(0xFF0F766E),
-      'SUSPENDED' => theme.colorScheme.error,
-      'OFFLINE_AFTER_CURRENT_DELIVERY' => theme.colorScheme.tertiary,
-      _ => theme.colorScheme.outline,
+      'ONLINE' => DriverTokens.success,
+      'SUSPENDED' => DriverTokens.danger,
+      'OFFLINE_AFTER_CURRENT_DELIVERY' => DriverTokens.warning,
+      _ => DriverTokens.textSecondary,
     };
 
     return Semantics(
       container: true,
       label:
           '${AppStrings.statusLabel}: ${AppStrings.availabilityStatusLabel(status)}',
-      child: Container(
+      child: OperationalCard(
         key: const Key('availability_card'),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outlineVariant),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -280,7 +234,7 @@ class _AvailabilityCard extends StatelessWidget {
                   color: statusColor,
                   size: 28,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: DriverTokens.spaceMd),
                 Expanded(
                   child: Text(
                     AppStrings.availabilityStatusLabel(status),
@@ -294,7 +248,7 @@ class _AvailabilityCard extends StatelessWidget {
               ],
             ),
             if (state.me?.profileFullName != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: DriverTokens.spaceSm),
               Text(
                 state.me!.profileFullName!,
                 style: theme.textTheme.bodyMedium,
@@ -302,26 +256,23 @@ class _AvailabilityCard extends StatelessWidget {
             ],
             if (state.isBlocked ||
                 (state.me != null && !state.me!.operationalReady)) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: DriverTokens.spaceMd),
               Text(
                 state.me?.driverProfileExists != true
                     ? AppStrings.noDriverProfile
                     : AppStrings.driverNotOperational,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.error,
+                  color: DriverTokens.danger,
                 ),
               ),
             ],
-            const SizedBox(height: 20),
+            const SizedBox(height: DriverTokens.spaceLg),
             if (online || status == 'OFFLINE_AFTER_CURRENT_DELIVERY')
               OutlinedButton(
                 key: const Key('go_offline_button'),
                 onPressed: state.canToggleOnline
                     ? () => controller.goOffline()
                     : null,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(48, 56),
-                ),
                 child: Text(
                   state.availabilityBusy
                       ? AppStrings.goingOffline
@@ -348,19 +299,14 @@ class _AvailabilityCard extends StatelessWidget {
 }
 
 class _WaitingCard extends StatelessWidget {
-  const _WaitingCard({required this.theme});
-
-  final ThemeData theme;
+  const _WaitingCard();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final theme = Theme.of(context);
+    return OperationalCard(
       key: const Key('waiting_for_offer'),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      borderColor: DriverTokens.primaryContainer,
       child: Column(
         children: [
           const SizedBox(
@@ -368,7 +314,7 @@ class _WaitingCard extends StatelessWidget {
             height: 28,
             child: CircularProgressIndicator(strokeWidth: 3),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: DriverTokens.spaceLg),
           Text(
             AppStrings.waitingForOffer,
             textAlign: TextAlign.center,
@@ -376,11 +322,13 @@ class _WaitingCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: DriverTokens.spaceSm),
           Text(
             AppStrings.waitingForOfferHint,
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: DriverTokens.textSecondary,
+            ),
           ),
         ],
       ),
@@ -567,45 +515,6 @@ class _OfferRow extends StatelessWidget {
               textAlign: TextAlign.end,
               textDirection: ltr ? TextDirection.ltr : null,
               style: valueStyle,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoBanner extends StatelessWidget {
-  const _InfoBanner({
-    super.key,
-    required this.message,
-    required this.color,
-    required this.foreground,
-    required this.icon,
-  });
-
-  final String message;
-  final Color color;
-  final Color foreground;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: foreground),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: foreground, height: 1.35),
             ),
           ),
         ],

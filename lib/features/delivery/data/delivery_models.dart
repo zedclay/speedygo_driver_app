@@ -1,3 +1,25 @@
+class DeliveryActions {
+  DeliveryActions._();
+
+  static const startToPickup = 'start-to-pickup';
+  static const arrivePickup = 'arrive-pickup';
+  static const confirmPickup = 'confirm-pickup';
+  static const startDelivery = 'start-delivery';
+  static const arriveCustomer = 'arrive-customer';
+  static const completeDelivery = 'complete-delivery';
+
+  static const locationGated = <String>{arrivePickup, arriveCustomer};
+
+  static const ordered = <String>[
+    startToPickup,
+    arrivePickup,
+    confirmPickup,
+    startDelivery,
+    arriveCustomer,
+    completeDelivery,
+  ];
+}
+
 class DriverCurrentDelivery {
   const DriverCurrentDelivery({
     required this.assignmentId,
@@ -27,15 +49,41 @@ class DriverCurrentDelivery {
   final String? arrivedCustomerAt;
   final String? deliveredAt;
 
-  bool get canConfirmPickup => allowedActions.contains('confirm-pickup');
+  bool get canStartToPickup =>
+      allowedActions.contains(DeliveryActions.startToPickup);
+  bool get canArrivePickup =>
+      allowedActions.contains(DeliveryActions.arrivePickup);
+  bool get canConfirmPickup =>
+      allowedActions.contains(DeliveryActions.confirmPickup);
+  bool get canStartDelivery =>
+      allowedActions.contains(DeliveryActions.startDelivery);
+  bool get canArriveCustomer =>
+      allowedActions.contains(DeliveryActions.arriveCustomer);
+  bool get canCompleteDelivery =>
+      allowedActions.contains(DeliveryActions.completeDelivery);
+
+  /// COD is offered at customer arrival; the server validates payment method.
+  bool get canCollectCod => deliveryStatus == 'ARRIVED_CUSTOMER';
 
   bool get isAtPickup => deliveryStatus == 'AT_PICKUP';
+
+  bool get isArrivedCustomer => deliveryStatus == 'ARRIVED_CUSTOMER';
+
+  bool get isDelivered => deliveryStatus == 'DELIVERED';
 
   bool get isPickedUp =>
       deliveryStatus == 'PICKED_UP' ||
       deliveryStatus == 'IN_TRANSIT' ||
       deliveryStatus == 'ARRIVED_CUSTOMER' ||
       deliveryStatus == 'DELIVERED';
+
+  /// First server-allowed action in workflow order, if any.
+  String? get primaryAction {
+    for (final action in DeliveryActions.ordered) {
+      if (allowedActions.contains(action)) return action;
+    }
+    return null;
+  }
 
   factory DriverCurrentDelivery.fromJson(Map<String, dynamic> json) {
     final actions = json['allowedActions'];

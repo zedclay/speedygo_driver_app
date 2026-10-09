@@ -6,6 +6,7 @@ import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/errors/app_exception.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/application/session_controller.dart';
+import 'package:speedygo_driver_app/features/availability/application/availability_providers.dart';
 import 'package:speedygo_driver_app/features/availability/application/offer_countdown.dart';
 import 'package:speedygo_driver_app/features/availability/data/availability_api.dart';
 import 'package:speedygo_driver_app/features/availability/data/device_location.dart';
@@ -13,6 +14,8 @@ import 'package:speedygo_driver_app/features/availability/data/driver_me_models.
 import 'package:speedygo_driver_app/features/availability/data/offer_models.dart';
 import 'package:speedygo_driver_app/features/delivery/application/current_delivery_controller.dart';
 import 'package:speedygo_driver_app/features/delivery/data/delivery_api.dart';
+
+export 'package:speedygo_driver_app/features/availability/application/availability_providers.dart';
 
 enum DriverHomeLoadStatus { idle, loading, ready, error }
 
@@ -139,14 +142,6 @@ class DriverHomeState {
     );
   }
 }
-
-final availabilityClientProvider = Provider<AvailabilityClient>((ref) {
-  return AvailabilityApi(dio: ref.watch(apiClientProvider));
-});
-
-final deviceLocationSourceProvider = Provider<DeviceLocationSource>((ref) {
-  return GeolocatorLocationSource();
-});
 
 final driverHomeControllerProvider =
     NotifierProvider<DriverHomeController, DriverHomeState>(
