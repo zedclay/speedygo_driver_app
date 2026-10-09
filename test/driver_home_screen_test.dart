@@ -100,9 +100,7 @@ Widget _screenHarness({
           GlobalCupertinoLocalizations.delegate,
         ],
         builder: (context, child) => Directionality(
-          textDirection: locale == 'ar'
-              ? TextDirection.rtl
-              : TextDirection.ltr,
+          textDirection: locale == 'ar' ? TextDirection.rtl : TextDirection.ltr,
           child: child!,
         ),
         home: const DriverHomeScreen(),
