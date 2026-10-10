@@ -1,0 +1,10 @@
+{
+  "runId": "fxlive_nav_smoke_20261010T004207Z",
+  "phase": "active_delivery",
+  "orderIdSuffix": "265cee1f",
+  "deliveryIdSuffix": "d5ccbb2b",
+  "startingDeliveryStatus": "DRIVER_ASSIGNED",
+  "classification": "isolated_deterministic_fixture",
+  "database": "speedygo_parity_fx",
+  "redisDb": 9
+}

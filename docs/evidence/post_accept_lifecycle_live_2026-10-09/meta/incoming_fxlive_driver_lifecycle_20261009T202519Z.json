@@ -1,0 +1,15 @@
+{
+  "api": "http://127.0.0.1:3100/api/v1",
+  "branchId": "0d00f0f0-fa00-7000-8000-000000002001",
+  "productId": "0d00f0f0-fa00-7000-8000-000000007003",
+  "addressId": "0d00f0f0-fa00-7000-8000-000000000113",
+  "orders": [
+    {
+      "id": "01a12257-7c7e-7e8a-beb6-3b7883a4fdda",
+      "publicReference": "sgo_01a122577c7e757796c53ff77aeb31da",
+      "customerTotalMinor": 65000
+    }
+  ],
+  "errors": [],
+  "customerLogoutHttp": 200
+}

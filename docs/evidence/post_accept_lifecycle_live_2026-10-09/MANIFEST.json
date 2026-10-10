@@ -1,0 +1,268 @@
+{
+  "runId": "fxlive_driver_lifecycle_20261009T235305Z",
+  "title": "Driver post-accept delivery lifecycle live verification",
+  "date": "2026-10-09",
+  "driverGitSha": "59f2013866b488016e6b6283235f6860d2bff318",
+  "driverBranch": "test/driver-post-accept-lifecycle-live-v1",
+  "backendGitSha": "3131c4ec0e0d3295f1eeedf5e13f3cbdeb3c02b4",
+  "backendBranch": "feat/driver-assignment-version-contract",
+  "simulator": "iPhone 16e",
+  "simulatorUdid": "8DB9007A-B816-4EC5-86ED-C627AC60F2C5",
+  "os": "iOS Simulator",
+  "apiPort": 3100,
+  "databaseAlias": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "fixtureType": "isolated_deterministic_fixture",
+  "paymentMethod": "COD",
+  "expectedCodMinor": 65000,
+  "orderIdSuffix": "a2120933",
+  "deliveryIdSuffix": "23dca11b",
+  "assignmentIdSuffix": "5a64bda6",
+  "assignmentVersion": 1,
+  "startingDeliveryStatus": "DRIVER_ASSIGNED",
+  "merchantHandoffPath": "authenticated_merchant_api_fallback",
+  "merchantHandoffNote": "Pickup code obtained via authenticated Merchant API after live arrive-pickup; not live Merchant UI",
+  "locationNote": "FakeDeviceLocationSource fed fixture lat/lng; UI still published to live POST /driver/location",
+  "nonCodScenario": "NOT_RUN",
+  "nonCodBlocker": "Isolated fx_create_incoming places COD-only checkout; no safe ELECTRONIC fixture path without inventing payment success",
+  "verifyPath": "verify_cod.json",
+  "screenshots": [
+    {
+      "filename": "fxlife_01_fr_accepted_current.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "DRIVER_ASSIGNED",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "GET /driver/deliveries/current → DRIVER_ASSIGNED"
+    },
+    {
+      "filename": "fxlife_01b_ar_accepted_current.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "DRIVER_ASSIGNED",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "same delivery; RTL locale switch"
+    },
+    {
+      "filename": "fxlife_02_fr_to_pickup.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "TO_PICKUP",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../start-to-pickup → TO_PICKUP + DRIVER_STARTED_TO_PICKUP"
+    },
+    {
+      "filename": "fxlife_02b_ar_to_pickup.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "TO_PICKUP",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "RTL TO_PICKUP"
+    },
+    {
+      "filename": "fxlife_03_fr_at_pickup.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "AT_PICKUP",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../arrive-pickup → AT_PICKUP + DRIVER_ARRIVED_PICKUP"
+    },
+    {
+      "filename": "fxlife_04_fr_pickup_entry_empty.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "AT_PICKUP_CODE_ENTRY",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "empty_field_no_code",
+      "liveUi": true,
+      "backendAssertion": "PENDING handoff required; empty code field only"
+    },
+    {
+      "filename": "fxlife_04b_ar_pickup_entry_empty.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "AT_PICKUP_CODE_ENTRY",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "empty_field_no_code",
+      "liveUi": true,
+      "backendAssertion": "RTL pickup entry empty"
+    },
+    {
+      "filename": "fxlife_06_fr_picked_up.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "PICKED_UP",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../confirm-pickup → PICKED_UP; handoff CONSUMED; ORDER_PICKED_UP×1"
+    },
+    {
+      "filename": "fxlife_07_fr_relaunch_picked_up.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "PICKED_UP_AFTER_RELAUNCH",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "re-auth + GET current still PICKED_UP"
+    },
+    {
+      "filename": "fxlife_08_fr_in_transit.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "IN_TRANSIT",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../start-delivery → IN_TRANSIT + DELIVERY_IN_TRANSIT"
+    },
+    {
+      "filename": "fxlife_08b_ar_in_transit.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "IN_TRANSIT",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "RTL IN_TRANSIT"
+    },
+    {
+      "filename": "fxlife_09_fr_arrived_customer.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "ARRIVED_CUSTOMER",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../arrive-customer → ARRIVED_CUSTOMER + DRIVER_ARRIVED_CUSTOMER"
+    },
+    {
+      "filename": "fxlife_09b_ar_arrived_customer_cod.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "ARRIVED_CUSTOMER_COD",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "RTL COD card visible; no Customer PIN"
+    },
+    {
+      "filename": "fxlife_10_fr_complete_blocked_before_cod.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "ARRIVED_CUSTOMER_COMPLETE_BLOCKED",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../complete-delivery → 409 DRIVER_DELIVERY_COD_COMPLETION_NOT_READY"
+    },
+    {
+      "filename": "fxlife_11_fr_cod_ready.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "ARRIVED_CUSTOMER_COD_READY",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "COD form ready; amount not prefilled"
+    },
+    {
+      "filename": "fxlife_12_fr_cod_collected.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "ARRIVED_CUSTOMER_COD_COLLECTED",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../collect-cod exact 65000 → COLLECTED; payment SUCCEEDED; still ARRIVED_CUSTOMER"
+    },
+    {
+      "filename": "fxlife_13_fr_delivered.png",
+      "locale": "fr",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "DELIVERED",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "POST .../complete-delivery → DELIVERED + DELIVERY_COMPLETED×1 + earning×1"
+    },
+    {
+      "filename": "fxlife_14_ar_delivered_rtl.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "DELIVERED",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "RTL delivered banner"
+    },
+    {
+      "filename": "fxlife_15_ar_history.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "HISTORY",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "GET /driver/deliveries/history contains delivery"
+    },
+    {
+      "filename": "fxlife_16_ar_earnings_cod.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "EARNINGS_COD_SUMMARY",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "GET /driver/earnings + /driver/cod/summary"
+    },
+    {
+      "filename": "fxlife_17_ar_home_no_active.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "HOME_NO_ACTIVE",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "GET current delivery null after complete"
+    },
+    {
+      "filename": "fxlife_18_shell_profile.png",
+      "locale": "ar",
+      "fixtureRunId": "fxlive_driver_lifecycle_20261009T235305Z",
+      "deliveryPhase": "SHELL_PROFILE",
+      "evidenceClass": "live_driver_ui_verified",
+      "sanitization": "no_secrets",
+      "liveUi": true,
+      "backendAssertion": "canonical four-tab shell"
+    }
+  ],
+  "gates": {
+    "authenticated_api_verified": "PASS",
+    "database_state_verified": "PASS",
+    "live_driver_ui_verified": "PASS",
+    "live_merchant_ui_verified": "NOT_CLAIMED",
+    "live_merchant_driver_handoff": "PASS_API_FALLBACK",
+    "cod_lifecycle": "PASS",
+    "non_cod_lifecycle": "NOT_RUN",
+    "cross_app_e2e_verified": "NOT_CLAIMED",
+    "user_accepted": "NOT_CLAIMED",
+    "release_readiness": "NOT_CLAIMED"
+  },
+  "notes": [
+    "Primary live UI run covered DRIVER_ASSIGNED→ARRIVED_CUSTOMER including premature-complete gate.",
+    "COD collect→complete resumed in live_post_accept_lifecycle_resume_cod_test.dart on same fixture after sticky-bar hit-test fix.",
+    "Minimal production fix: extra scroll padding when COD card visible under sticky complete."
+  ]
+}

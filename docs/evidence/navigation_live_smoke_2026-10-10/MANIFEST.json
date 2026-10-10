@@ -1,0 +1,243 @@
+{
+  "runId": "nav_smoke_1791593292",
+  "date": "2026-10-10",
+  "driverGitSha": "59f2013866b488016e6b6283235f6860d2bff318",
+  "driverBranch": "test/driver-post-accept-lifecycle-live-v1",
+  "backendGitSha": "3131c4ec0e0d3295f1eeedf5e13f3cbdeb3c02b4",
+  "simulator": "iPhone 16e",
+  "simulatorUdid": "8DB9007A-B816-4EC5-86ED-C627AC60F2C5",
+  "apiPort": 3100,
+  "databaseAlias": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "scenarios": {
+    "A": {
+      "status": "PASS",
+      "evidenceClass": "live_driver_ui_verified",
+      "expected": "/auth/phone",
+      "actual": "/auth/phone"
+    },
+    "B": {
+      "status": "PASS",
+      "evidenceClass": "live_driver_ui_verified",
+      "expected": "/home",
+      "actual": "/home"
+    },
+    "C": {
+      "status": "NOT_VERIFIED",
+      "evidenceClass": "not_verified",
+      "reason": "No safe isolated Pending/REJECTED/INACTIVE Driver fixture without mutating shared verification state"
+    },
+    "D": {
+      "status": "PASS",
+      "evidenceClass": "live_driver_ui_verified",
+      "expected": "/delivery/current",
+      "actual": "/delivery/current",
+      "fixture": "isolated_deterministic DRIVER_ASSIGNED"
+    },
+    "E": {
+      "status": "NOT_RERUN",
+      "evidenceClass": "not_verified",
+      "reason": "No safe current-offer fixture this run; prior Offers live evidence retained at availability_offers_live_2026-10-09"
+    },
+    "F": {
+      "status": "PASS",
+      "evidenceClass": "live_driver_ui_verified",
+      "expected": "/auth/phone after logout",
+      "actual": "/auth/phone"
+    }
+  },
+  "screenshots": [
+    {
+      "filename": "fxnav_a_phone_after_splash.png",
+      "scenario": "A",
+      "locale": "fr",
+      "expectedDestination": "/auth/phone",
+      "actualDestination": "/auth/phone",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_a_blocked_home_redirect.png",
+      "scenario": "A",
+      "locale": "fr",
+      "expectedDestination": "/auth/phone",
+      "actualDestination": "/auth/phone",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_home_approved.png",
+      "scenario": "B",
+      "locale": "fr",
+      "expectedDestination": "/home",
+      "actualDestination": "/home",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_tabs_stable.png",
+      "scenario": "B",
+      "locale": "fr",
+      "expectedDestination": "/home",
+      "actualDestination": "/home",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_profile_from_avatar.png",
+      "scenario": "B",
+      "locale": "fr",
+      "expectedDestination": "/profile",
+      "actualDestination": "/profile",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_nested_vehicle.png",
+      "scenario": "B",
+      "locale": "fr",
+      "expectedDestination": "/profile/vehicle",
+      "actualDestination": "/profile/vehicle",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_notifications.png",
+      "scenario": "B",
+      "locale": "fr",
+      "expectedDestination": "/notifications",
+      "actualDestination": "/notifications",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_ar_after_language.png",
+      "scenario": "B",
+      "locale": "ar",
+      "expectedDestination": "/settings/language",
+      "actualDestination": "/settings/language",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_b_home_after_locale.png",
+      "scenario": "B",
+      "locale": "fr",
+      "expectedDestination": "/home",
+      "actualDestination": "/home",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_d_cold_start_current_delivery.png",
+      "scenario": "D",
+      "locale": "fr",
+      "expectedDestination": "/delivery/current",
+      "actualDestination": "/delivery/current",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_d_home_with_active_banner.png",
+      "scenario": "D",
+      "locale": "fr",
+      "expectedDestination": "/home",
+      "actualDestination": "/home",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_d_resume_same_stage.png",
+      "scenario": "D",
+      "locale": "fr",
+      "expectedDestination": "/delivery/current",
+      "actualDestination": "/delivery/current",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_d_relaunch_current_delivery.png",
+      "scenario": "D",
+      "locale": "fr",
+      "expectedDestination": "/delivery/current",
+      "actualDestination": "/delivery/current",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_f_logout_confirm.png",
+      "scenario": "F",
+      "locale": "fr",
+      "expectedDestination": "profile logout sheet",
+      "actualDestination": "profile logout sheet",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_f_logout_cancelled.png",
+      "scenario": "F",
+      "locale": "fr",
+      "expectedDestination": "/profile",
+      "actualDestination": "/profile",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_f_logged_out_phone.png",
+      "scenario": "F",
+      "locale": "fr",
+      "expectedDestination": "/auth/phone",
+      "actualDestination": "/auth/phone",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    },
+    {
+      "filename": "fxnav_f_back_blocked.png",
+      "scenario": "F",
+      "locale": "fr",
+      "expectedDestination": "/auth/phone",
+      "actualDestination": "/auth/phone",
+      "evidenceClass": "live_driver_ui_verified",
+      "liveUi": true,
+      "sanitization": "no_secrets",
+      "fixtureEnv": "speedygo_parity_fx/:3100/redis9"
+    }
+  ],
+  "priorLifecycleEvidenceIntact": true,
+  "notes": [
+    "Navigation smoke only; COD/completion not re-executed.",
+    "Home classified as state_variant; tab_root remains 3 (History/Earnings/Profile)."
+  ]
+}
