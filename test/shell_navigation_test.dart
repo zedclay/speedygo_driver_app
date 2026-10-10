@@ -23,6 +23,7 @@ import 'package:speedygo_driver_app/features/history/data/history_api.dart';
 import 'package:speedygo_driver_app/features/notifications/application/notifications_controller.dart';
 import 'package:speedygo_driver_app/features/notifications/data/notifications_api.dart';
 import 'package:speedygo_driver_app/features/onboarding/application/onboarding_controller.dart';
+import 'package:speedygo_driver_app/features/first_launch_intro/application/first_launch_intro_store.dart';
 import 'package:speedygo_driver_app/features/profile/data/driver_profile_api.dart';
 
 class _SignedInSession extends SessionController {
@@ -68,6 +69,9 @@ Future<ProviderContainer> _pumpApp(
   final container = ProviderContainer(
     overrides: [
       splashMinDurationProvider.overrideWithValue(Duration.zero),
+      firstLaunchIntroStoreProvider.overrideWithValue(
+        MemoryFirstLaunchIntroStore(completed: true),
+      ),
       sessionControllerProvider.overrideWith(_SignedInSession.new),
       sessionStoreProvider.overrideWithValue(MemorySessionStore()),
       localeStoreProvider.overrideWithValue(MemoryLocaleStore(locale: locale)),

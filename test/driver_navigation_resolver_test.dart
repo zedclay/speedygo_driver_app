@@ -152,10 +152,10 @@ void main() {
       );
     });
 
-    test('signed out clears splash to phone', () {
+    test('signed out leaves splash to SplashScreen brand hold', () {
       expect(
         driverRedirect(status: SessionStatus.signedOut, loc: AppRoutes.splash),
-        AppRoutes.phone,
+        isNull,
       );
     });
 

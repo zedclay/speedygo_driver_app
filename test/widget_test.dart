@@ -8,6 +8,7 @@ import 'package:speedygo_driver_app/core/locale/locale_store.dart';
 import 'package:speedygo_driver_app/core/storage/session_store.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/data/auth_api.dart';
+import 'package:speedygo_driver_app/features/first_launch_intro/application/first_launch_intro_store.dart';
 
 void main() {
   testWidgets('unauthenticated bootstrap reaches phone screen', (tester) async {
@@ -15,6 +16,9 @@ void main() {
       ProviderScope(
         overrides: [
           splashMinDurationProvider.overrideWithValue(Duration.zero),
+          firstLaunchIntroStoreProvider.overrideWithValue(
+            MemoryFirstLaunchIntroStore(completed: true),
+          ),
           sessionStoreProvider.overrideWithValue(MemorySessionStore()),
           localeStoreProvider.overrideWithValue(
             MemoryLocaleStore(locale: 'fr'),
