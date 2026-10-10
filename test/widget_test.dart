@@ -14,6 +14,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          splashMinDurationProvider.overrideWithValue(Duration.zero),
           sessionStoreProvider.overrideWithValue(MemorySessionStore()),
           localeStoreProvider.overrideWithValue(
             MemoryLocaleStore(locale: 'fr'),

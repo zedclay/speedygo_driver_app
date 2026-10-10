@@ -67,6 +67,7 @@ Future<ProviderContainer> _pumpApp(
   addTearDown(tester.view.reset);
   final container = ProviderContainer(
     overrides: [
+      splashMinDurationProvider.overrideWithValue(Duration.zero),
       sessionControllerProvider.overrideWith(_SignedInSession.new),
       sessionStoreProvider.overrideWithValue(MemorySessionStore()),
       localeStoreProvider.overrideWithValue(MemoryLocaleStore(locale: locale)),

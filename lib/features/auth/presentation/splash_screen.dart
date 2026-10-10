@@ -9,9 +9,6 @@ import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/splash_backdrop.dart';
 
-/// Brand hold so the splash can paint before cold-start navigation.
-const _kSplashMinHold = Duration(milliseconds: 1200);
-
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -42,6 +39,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _bootstrap() async {
+    final minHold = ref.read(splashMinDurationProvider);
     final startedAt = DateTime.now();
     await ref.read(localeControllerProvider.notifier).restore();
     await ref.read(sessionControllerProvider.notifier).restore();
@@ -52,7 +50,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!mounted) return;
 
     final elapsed = DateTime.now().difference(startedAt);
-    final remaining = _kSplashMinHold - elapsed;
+    final remaining = minHold - elapsed;
     if (remaining > Duration.zero) {
       await Future<void>.delayed(remaining);
     }
