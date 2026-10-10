@@ -6,6 +6,7 @@
   "folder_count": 47,
   "lanes": [
     "cold_start_splash",
+    "first_launch_intro_gate",
     "authentication",
     "onboarding_verification",
     "approved_shell",
@@ -14,7 +15,15 @@
     "profile_nested",
     "blocked_contextual"
   ],
+  "first_launch_intro": {
+    "route": "/welcome-intro",
+    "persistence_key": "driver_first_launch_intro_v1_completed",
+    "stitch_tracker": "unchanged_47",
+    "additional_approved_screens": 3,
+    "note": "Product intro slides after Splash; not registration /onboarding/*"
+  },
   "cold_start_destinations": {
+    "intro_incomplete": "/welcome-intro",
     "no_session": "/auth/phone",
     "invalid_session": "/auth/phone",
     "needs_profile": "/onboarding/profile",

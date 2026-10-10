@@ -22,12 +22,20 @@ Machine-readable companion: `DRIVER_NAVIGATION_STATE_MACHINE.json`.
 ```
 Splash (initialLocation)
   → restore locale
+  → restore first-launch intro flag (driver_first_launch_intro_v1_completed)
   → SessionController.restore()
-  → DriverBootstrapController.resolveAfterSession()
+  → if intro not completed:
+       context.go(/welcome-intro)   // first-launch product slides
+       (Skip / Commencer → persist flag → resolveAfterSession → context.go)
+  → else DriverBootstrapController.resolveAfterSession()
        GET /driver/me when signedIn
        GET /driver/deliveries/current when APPROVED
-  → context.go(destination)   // replace; Splash not in history
+  → context.go(destination)   // replace; Splash / intro not in history
 ```
+
+First-launch intro (`/welcome-intro`) is **not** Driver registration `/onboarding/*`.
+It is documented separately as **3 additional approved first-launch intro screens**.
+Stitch tracker remains **47/47**.
 
 | Condition | Destination |
 | --- | --- |
