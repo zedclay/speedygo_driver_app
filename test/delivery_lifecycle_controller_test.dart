@@ -287,6 +287,16 @@ void main() {
       await tester.enterText(find.byKey(const Key('cod_amount_field')), '1200');
       await tester.pump();
       await tester.ensureVisible(find.byKey(const Key('cod_collect_button')));
+      // Live regression: collect must sit above the sticky complete bar.
+      final collectTop = tester
+          .getTopLeft(find.byKey(const Key('cod_collect_button')))
+          .dy;
+      final stickyTop = tester
+          .getTopLeft(
+            find.byKey(const Key('delivery_action_complete-delivery')),
+          )
+          .dy;
+      expect(collectTop, lessThan(stickyTop));
       await tester.tap(find.byKey(const Key('cod_collect_button')));
       await tester.pumpAndSettle();
       expect(delivery.lastCollectedAmountMinor, 1200);

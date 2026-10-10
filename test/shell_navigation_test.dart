@@ -147,8 +147,35 @@ void main() {
     });
 
     test('signed in skips auth routes and keeps shell/pushed routes', () {
+      const approvedMe = DriverMe(
+        driverProfileExists: true,
+        profileComplete: true,
+        identityDocumentComplete: true,
+        drivingLicenseComplete: true,
+        vehicleComplete: true,
+        verificationSubmitted: true,
+        verificationApproved: true,
+        operationalReady: true,
+        matchingEligible: true,
+        availability: DriverAvailabilityInfo(
+          status: 'OFFLINE',
+          offlineAfterCurrentDelivery: false,
+          updatedAt: '',
+        ),
+        verificationStatus: 'APPROVED',
+      );
+      const approved = DriverNavSnapshot(
+        sessionStatus: SessionStatus.signedIn,
+        accountStatus: 'ACTIVE',
+        resolved: true,
+        driverMe: approvedMe,
+      );
       expect(
-        driverRedirect(status: SessionStatus.signedIn, loc: AppRoutes.phone),
+        driverRedirect(
+          status: SessionStatus.signedIn,
+          loc: AppRoutes.phone,
+          snapshot: approved,
+        ),
         AppRoutes.home,
       );
       for (final loc in [
@@ -156,13 +183,25 @@ void main() {
         AppRoutes.currentDelivery,
         AppRoutes.notifications,
         AppRoutes.support,
-        AppRoutes.onboardingReview,
       ]) {
         expect(
-          driverRedirect(status: SessionStatus.signedIn, loc: loc),
+          driverRedirect(
+            status: SessionStatus.signedIn,
+            loc: loc,
+            snapshot: approved,
+          ),
           isNull,
         );
       }
+      // Editable onboarding is closed after approval.
+      expect(
+        driverRedirect(
+          status: SessionStatus.signedIn,
+          loc: AppRoutes.onboardingReview,
+          snapshot: approved,
+        ),
+        AppRoutes.home,
+      );
     });
 
     test('account without profile is confined to onboarding', () {
