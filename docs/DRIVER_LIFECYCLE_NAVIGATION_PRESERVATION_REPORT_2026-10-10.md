@@ -106,3 +106,7 @@ Pre-push validation required on this branch tip:
 - No rebase / reset / stash / force-push
 - No Backend / Merchant / Customer / Admin source modification as part of this preservation
 - Not release ready
+
+## Post-commit validation fix
+
+After the initial four preservation commits, `flutter test` failed on pending splash brand-hold timers. A fifth commit added `splashMinDurationProvider` (default 1200ms; tests override to zero). Production hold behavior is unchanged.
