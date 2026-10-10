@@ -84,5 +84,21 @@
   "offerLocationRequired": "Une position récente est requise pour accepter l’offre.",
   "offerLocationStale": "Votre position est obsolète. Réessayez après actualisation.",
   "notMatchingEligible": "Vous n’êtes pas éligible au matching pour le moment.",
-  "metersUnit": "m"
+  "metersUnit": "m",
+  "firstLaunchIntroSkip": "Passer",
+  "firstLaunchIntroNext": "Suivant",
+  "firstLaunchIntroStart": "Commencer",
+  "firstLaunchIntroPage1Title": "Recevez des courses",
+  "firstLaunchIntroPage1Body": "Passez en ligne et recevez des offres adaptées à votre zone.",
+  "firstLaunchIntroPage2Title": "Livrez en toute simplicité",
+  "firstLaunchIntroPage2Body": "Suivez chaque étape, du retrait chez le marchand jusqu’au client.",
+  "firstLaunchIntroPage3Title": "Gardez le contrôle de vos gains",
+  "firstLaunchIntroPage3Body": "Consultez vos livraisons et suivez vos revenus en toute clarté.",
+  "firstLaunchIntroPageSemantics": "Page {page} sur {total}",
+  "@firstLaunchIntroPageSemantics": {
+    "placeholders": {
+      "page": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  }
 }

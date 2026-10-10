@@ -83,6 +83,7 @@ class AppRoutes {
   AppRoutes._();
 
   static const splash = '/';
+  static const welcomeIntro = '/welcome-intro';
   static const phone = '/auth/phone';
   static const otp = '/auth/otp';
   static const home = '/home';

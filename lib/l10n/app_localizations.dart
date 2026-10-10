@@ -607,6 +607,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'m'**
   String get metersUnit;
+
+  /// No description provided for @firstLaunchIntroSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get firstLaunchIntroSkip;
+
+  /// No description provided for @firstLaunchIntroNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get firstLaunchIntroNext;
+
+  /// No description provided for @firstLaunchIntroStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get firstLaunchIntroStart;
+
+  /// No description provided for @firstLaunchIntroPage1Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevez des courses'**
+  String get firstLaunchIntroPage1Title;
+
+  /// No description provided for @firstLaunchIntroPage1Body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passez en ligne et recevez des offres adaptées à votre zone.'**
+  String get firstLaunchIntroPage1Body;
+
+  /// No description provided for @firstLaunchIntroPage2Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livrez en toute simplicité'**
+  String get firstLaunchIntroPage2Title;
+
+  /// No description provided for @firstLaunchIntroPage2Body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivez chaque étape, du retrait chez le marchand jusqu’au client.'**
+  String get firstLaunchIntroPage2Body;
+
+  /// No description provided for @firstLaunchIntroPage3Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gardez le contrôle de vos gains'**
+  String get firstLaunchIntroPage3Title;
+
+  /// No description provided for @firstLaunchIntroPage3Body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez vos livraisons et suivez vos revenus en toute clarté.'**
+  String get firstLaunchIntroPage3Body;
+
+  /// No description provided for @firstLaunchIntroPageSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page {page} sur {total}'**
+  String firstLaunchIntroPageSemantics(int page, int total);
 }
 
 class _AppLocalizationsDelegate

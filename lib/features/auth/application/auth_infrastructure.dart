@@ -13,7 +13,7 @@ final apiConfigProvider = Provider<ApiConfig>((ref) {
 
 /// Brand hold on splash before cold-start navigation. Tests override to zero.
 final splashMinDurationProvider = Provider<Duration>((ref) {
-  return const Duration(milliseconds: 1200);
+  return const Duration(milliseconds: 2500);
 });
 
 final sessionStoreProvider = Provider<SessionStore>((ref) {

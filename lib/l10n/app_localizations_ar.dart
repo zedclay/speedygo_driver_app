@@ -272,4 +272,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get metersUnit => 'م';
+
+  @override
+  String get firstLaunchIntroSkip => 'تخطي';
+
+  @override
+  String get firstLaunchIntroNext => 'التالي';
+
+  @override
+  String get firstLaunchIntroStart => 'ابدأ';
+
+  @override
+  String get firstLaunchIntroPage1Title => 'استلم طلبات التوصيل';
+
+  @override
+  String get firstLaunchIntroPage1Body =>
+      'فعّل وضع الاتصال واستلم عروض توصيل مناسبة لمنطقتك.';
+
+  @override
+  String get firstLaunchIntroPage2Title => 'وصّل بكل سهولة';
+
+  @override
+  String get firstLaunchIntroPage2Body =>
+      'تابع كل مرحلة، من استلام الطلب لدى التاجر حتى تسليمه إلى العميل.';
+
+  @override
+  String get firstLaunchIntroPage3Title => 'تحكّم في أرباحك';
+
+  @override
+  String get firstLaunchIntroPage3Body =>
+      'راجع عمليات التوصيل وتابع أرباحك بكل وضوح.';
+
+  @override
+  String firstLaunchIntroPageSemantics(int page, int total) {
+    return 'صفحة $page من $total';
+  }
 }

@@ -11,6 +11,8 @@ import 'package:speedygo_driver_app/features/auth/presentation/otp_screen.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/phone_screen.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/splash_screen.dart';
 import 'package:speedygo_driver_app/features/availability/presentation/driver_home_screen.dart';
+import 'package:speedygo_driver_app/features/first_launch_intro/application/first_launch_intro_controller.dart';
+import 'package:speedygo_driver_app/features/first_launch_intro/presentation/first_launch_intro_screen.dart';
 import 'package:speedygo_driver_app/features/blocked/presentation/honest_unavailable_screen.dart';
 import 'package:speedygo_driver_app/features/delivery/presentation/current_delivery_screen.dart';
 import 'package:speedygo_driver_app/features/earnings/presentation/earnings_screen.dart';
@@ -43,6 +45,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.listen<DriverNavSnapshot>(driverNavSnapshotProvider, (_, _) {
     refresh.value++;
   });
+  ref.listen<bool?>(firstLaunchIntroCompletedProvider, (_, _) {
+    refresh.value++;
+  });
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
@@ -51,16 +56,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final session = ref.read(sessionControllerProvider);
       final snapshot = ref.read(driverNavSnapshotProvider);
+      final intro = ref.read(firstLaunchIntroCompletedProvider);
+      // Until Splash restores the flag, do not force the intro gate.
+      final introCompleted = intro ?? true;
       return driverRedirect(
         status: session.status,
         loc: state.matchedLocation,
         snapshot: snapshot,
+        introCompleted: introCompleted,
       );
     },
     routes: [
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.welcomeIntro,
+        builder: (context, state) => const FirstLaunchIntroScreen(),
       ),
       GoRoute(
         path: AppRoutes.phone,

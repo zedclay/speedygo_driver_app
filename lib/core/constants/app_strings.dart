@@ -19,6 +19,37 @@ class AppStrings {
   static String get splashTagline =>
       isArabic ? 'توصيل بسرعة. بكل ثقة.' : 'Livrez vite. En confiance.';
 
+  // --- First-launch intro (product slides; not registration onboarding) ---
+  static String get firstLaunchIntroSkip => isArabic ? 'تخطي' : 'Passer';
+
+  static String get firstLaunchIntroNext => isArabic ? 'التالي' : 'Suivant';
+
+  static String get firstLaunchIntroStart => isArabic ? 'ابدأ' : 'Commencer';
+
+  static String get firstLaunchIntroPage1Title =>
+      isArabic ? 'استلم طلبات التوصيل' : 'Recevez des courses';
+
+  static String get firstLaunchIntroPage1Body => isArabic
+      ? 'فعّل وضع الاتصال واستلم عروض توصيل مناسبة لمنطقتك.'
+      : 'Passez en ligne et recevez des offres adaptées à votre zone.';
+
+  static String get firstLaunchIntroPage2Title =>
+      isArabic ? 'وصّل بكل سهولة' : 'Livrez en toute simplicité';
+
+  static String get firstLaunchIntroPage2Body => isArabic
+      ? 'تابع كل مرحلة، من استلام الطلب لدى التاجر حتى تسليمه إلى العميل.'
+      : 'Suivez chaque étape, du retrait chez le marchand jusqu’au client.';
+
+  static String get firstLaunchIntroPage3Title =>
+      isArabic ? 'تحكّم في أرباحك' : 'Gardez le contrôle de vos gains';
+
+  static String get firstLaunchIntroPage3Body => isArabic
+      ? 'راجع عمليات التوصيل وتابع أرباحك بكل وضوح.'
+      : 'Consultez vos livraisons et suivez vos revenus en toute clarté.';
+
+  static String firstLaunchIntroPageSemantics(int page, int total) =>
+      isArabic ? 'صفحة $page من $total' : 'Page $page sur $total';
+
   static String get networkError => isArabic
       ? 'تعذّر الاتصال. أعد المحاولة.'
       : 'Connexion impossible. Réessayez.';

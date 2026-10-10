@@ -84,5 +84,21 @@
   "offerLocationRequired": "يلزم موقع حديث لقبول العرض.",
   "offerLocationStale": "موقعك قديم. أعد المحاولة بعد تحديث الموقع.",
   "notMatchingEligible": "لست مؤهلًا للمطابقة حاليًا.",
-  "metersUnit": "م"
+  "metersUnit": "م",
+  "firstLaunchIntroSkip": "تخطي",
+  "firstLaunchIntroNext": "التالي",
+  "firstLaunchIntroStart": "ابدأ",
+  "firstLaunchIntroPage1Title": "استلم طلبات التوصيل",
+  "firstLaunchIntroPage1Body": "فعّل وضع الاتصال واستلم عروض توصيل مناسبة لمنطقتك.",
+  "firstLaunchIntroPage2Title": "وصّل بكل سهولة",
+  "firstLaunchIntroPage2Body": "تابع كل مرحلة، من استلام الطلب لدى التاجر حتى تسليمه إلى العميل.",
+  "firstLaunchIntroPage3Title": "تحكّم في أرباحك",
+  "firstLaunchIntroPage3Body": "راجع عمليات التوصيل وتابع أرباحك بكل وضوح.",
+  "firstLaunchIntroPageSemantics": "صفحة {page} من {total}",
+  "@firstLaunchIntroPageSemantics": {
+    "placeholders": {
+      "page": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  }
 }

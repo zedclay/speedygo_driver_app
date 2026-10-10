@@ -285,4 +285,39 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get metersUnit => 'm';
+
+  @override
+  String get firstLaunchIntroSkip => 'Passer';
+
+  @override
+  String get firstLaunchIntroNext => 'Suivant';
+
+  @override
+  String get firstLaunchIntroStart => 'Commencer';
+
+  @override
+  String get firstLaunchIntroPage1Title => 'Recevez des courses';
+
+  @override
+  String get firstLaunchIntroPage1Body =>
+      'Passez en ligne et recevez des offres adaptées à votre zone.';
+
+  @override
+  String get firstLaunchIntroPage2Title => 'Livrez en toute simplicité';
+
+  @override
+  String get firstLaunchIntroPage2Body =>
+      'Suivez chaque étape, du retrait chez le marchand jusqu’au client.';
+
+  @override
+  String get firstLaunchIntroPage3Title => 'Gardez le contrôle de vos gains';
+
+  @override
+  String get firstLaunchIntroPage3Body =>
+      'Consultez vos livraisons et suivez vos revenus en toute clarté.';
+
+  @override
+  String firstLaunchIntroPageSemantics(int page, int total) {
+    return 'Page $page sur $total';
+  }
 }

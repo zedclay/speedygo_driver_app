@@ -6,8 +6,10 @@ import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart'
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/constants/driver_assets.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
+import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/splash_backdrop.dart';
+import 'package:speedygo_driver_app/features/first_launch_intro/application/first_launch_intro_controller.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -42,18 +44,27 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final minHold = ref.read(splashMinDurationProvider);
     final startedAt = DateTime.now();
     await ref.read(localeControllerProvider.notifier).restore();
+    await ref.read(firstLaunchIntroCompletedProvider.notifier).restore();
     await ref.read(sessionControllerProvider.notifier).restore();
     if (!mounted) return;
-    final target = await ref
-        .read(driverNavSnapshotProvider.notifier)
-        .resolveAfterSession();
-    if (!mounted) return;
+
+    final introCompleted = ref.read(firstLaunchIntroCompletedProvider) == true;
 
     final elapsed = DateTime.now().difference(startedAt);
     final remaining = minHold - elapsed;
     if (remaining > Duration.zero) {
       await Future<void>.delayed(remaining);
     }
+    if (!mounted) return;
+
+    if (!introCompleted) {
+      context.go(AppRoutes.welcomeIntro);
+      return;
+    }
+
+    final target = await ref
+        .read(driverNavSnapshotProvider.notifier)
+        .resolveAfterSession();
     if (!mounted) return;
     context.go(target);
   }

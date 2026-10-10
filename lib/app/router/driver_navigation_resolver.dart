@@ -119,6 +119,8 @@ String resolveColdStartDestination({
 bool _isAuthRoute(String loc) =>
     loc == AppRoutes.phone || loc == AppRoutes.otp || loc == AppRoutes.splash;
 
+bool _isWelcomeIntroRoute(String loc) => loc == AppRoutes.welcomeIntro;
+
 bool _isLanguageRoute(String loc) => loc == AppRoutes.languageSettings;
 
 bool _isOnboardingRoute(String loc) => loc.startsWith('/onboarding');
@@ -145,10 +147,14 @@ bool _isEditableOnboarding(String loc) =>
     loc == AppRoutes.onboardingCorrections;
 
 /// GoRouter redirect. Prefer [snapshot] once bootstrap has resolved DriverMe.
+///
+/// [introCompleted] gates the first-launch product intro (`/welcome-intro`).
+/// Default `true` preserves callers that only exercise business-state lanes.
 String? driverRedirect({
   required SessionStatus status,
   required String loc,
   DriverNavSnapshot? snapshot,
+  bool introCompleted = true,
 }) {
   if (status == SessionStatus.unknown) {
     if (loc != AppRoutes.splash && !_isLanguageRoute(loc)) {
@@ -157,10 +163,31 @@ String? driverRedirect({
     return null;
   }
 
+  // Splash owns brand hold + outbound `context.go`. Never yank it away via
+  // redirect when session restores mid-hold (that made the splash a flash).
+  if (loc == AppRoutes.splash) {
+    return null;
+  }
+
+  // First-launch intro gate (after Splash local restore; before resolver dest).
+  if (!introCompleted) {
+    if (_isWelcomeIntroRoute(loc) || _isLanguageRoute(loc)) {
+      return null;
+    }
+    return AppRoutes.welcomeIntro;
+  }
+
+  if (_isWelcomeIntroRoute(loc)) {
+    // Intro already completed — do not remain on the gate.
+    if (snapshot?.resolved == true) {
+      final destination = snapshot!.coldStartDestination;
+      return destination == AppRoutes.splash ? AppRoutes.phone : destination;
+    }
+    return AppRoutes.splash;
+  }
+
   if (status == SessionStatus.signedOut) {
     if (_isAuthRoute(loc) || _isLanguageRoute(loc)) {
-      // Splash must not remain reachable after signed-out resolution.
-      if (loc == AppRoutes.splash) return AppRoutes.phone;
       return null;
     }
     return AppRoutes.phone;
@@ -168,20 +195,12 @@ String? driverRedirect({
 
   if (status == SessionStatus.needsDriverProfile) {
     if (_isOnboardingRoute(loc) || _isLanguageRoute(loc)) return null;
-    if (loc == AppRoutes.splash) return AppRoutes.onboardingProfile;
     return AppRoutes.onboardingProfile;
   }
 
   // signedIn
   final snap = snapshot;
   final resolved = snap?.resolved == true;
-
-  // Splash stays until bootstrap `context.go` (or redirect once resolved).
-  if (loc == AppRoutes.splash) {
-    if (!resolved) return null;
-    final destination = snap!.coldStartDestination;
-    return destination == AppRoutes.splash ? AppRoutes.home : destination;
-  }
 
   if (loc == AppRoutes.phone || loc == AppRoutes.otp) {
     // OTP/phone submit paths call bootstrap then `context.go`.
