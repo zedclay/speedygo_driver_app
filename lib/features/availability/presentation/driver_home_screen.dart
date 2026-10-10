@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
@@ -53,6 +54,7 @@ class _DriverHomeScreenState extends ConsumerState<DriverHomeScreen>
       if (next.acceptedNavigationPending &&
           prev?.acceptedNavigationPending != true) {
         controller.clearAcceptedNavigationFlag();
+        ref.read(driverNavSnapshotProvider.notifier).markActiveDelivery(true);
         context.go(AppRoutes.currentDelivery);
       }
     });

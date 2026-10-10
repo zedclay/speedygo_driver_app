@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
@@ -29,11 +30,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     if (code.length < 4) return;
     try {
       await ref.read(sessionControllerProvider.notifier).verifyOtp(code);
-      final status = ref.read(sessionControllerProvider).status;
       if (!mounted) return;
-      if (status == SessionStatus.signedIn) {
-        context.go(AppRoutes.home);
+      final status = ref.read(sessionControllerProvider).status;
+      if (status == SessionStatus.signedOut ||
+          status == SessionStatus.unknown) {
+        return;
       }
+      final target = await ref
+          .read(driverNavSnapshotProvider.notifier)
+          .resolveAfterSession();
+      if (!mounted) return;
+      context.go(target);
     } catch (_) {}
   }
 

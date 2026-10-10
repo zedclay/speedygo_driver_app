@@ -40,8 +40,8 @@ class _OnboardingStatusScreenState
         DriverTokens.warning,
         AppStrings.pendingTitle,
         AppStrings.pendingBody,
-        AppStrings.navOrders,
-        AppRoutes.home,
+        AppStrings.deliveryRefresh,
+        AppRoutes.onboardingPending,
       ),
       OnboardingOutcome.approved => (
         Icons.verified_outlined,
@@ -85,7 +85,13 @@ class _OnboardingStatusScreenState
                   width: double.infinity,
                   child: FilledButton(
                     key: const Key('onboarding_status_cta'),
-                    onPressed: () => context.go(route),
+                    onPressed: () {
+                      if (widget.outcome == OnboardingOutcome.pending) {
+                        ref.read(onboardingControllerProvider.notifier).load();
+                        return;
+                      }
+                      context.go(route);
+                    },
                     child: Text(cta),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
@@ -56,7 +57,10 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
         leading: IconButton(
           key: const Key('delivery_back_home'),
           tooltip: AppStrings.homeTitle,
-          onPressed: () => context.go(AppRoutes.home),
+          onPressed: () {
+            ref.read(driverNavSnapshotProvider.notifier).clearActiveDelivery();
+            context.go(AppRoutes.home);
+          },
           icon: const Icon(Icons.arrow_back),
         ),
         actions: [
@@ -84,7 +88,11 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
                 DriverTokens.edgeMargin,
                 DriverTokens.spaceLg,
                 DriverTokens.edgeMargin,
-                24 + bottomInset + (stickyAction != null ? 72 : 0),
+                // Extra space when COD is visible so collect isn't under sticky complete.
+                24 +
+                    bottomInset +
+                    (stickyAction != null ? 72 : 0) +
+                    (showCod && !state.codCollected ? 88 : 0),
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -120,6 +128,9 @@ class _CurrentDeliveryScreenState extends ConsumerState<CurrentDeliveryScreen> {
                         _DeliveredBanner(
                           onDone: () {
                             controller.reset();
+                            ref
+                                .read(driverNavSnapshotProvider.notifier)
+                                .clearActiveDelivery();
                             context.go(AppRoutes.home);
                           },
                         )

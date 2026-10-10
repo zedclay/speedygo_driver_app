@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart';
+import 'package:speedygo_driver_app/app/router/driver_navigation_resolver.dart';
 import 'package:speedygo_driver_app/app/router/driver_shell.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
@@ -30,39 +32,15 @@ import 'package:speedygo_driver_app/features/settings/presentation/language_sett
 import 'package:speedygo_driver_app/features/support/presentation/support_detail_screen.dart';
 import 'package:speedygo_driver_app/features/support/presentation/support_screen.dart';
 
-/// Pure redirect rules — unit-tested without building a GoRouter.
-String? driverRedirect({required SessionStatus status, required String loc}) {
-  final authRoute =
-      loc == AppRoutes.phone || loc == AppRoutes.otp || loc == AppRoutes.splash;
-  final languageRoute = loc == AppRoutes.languageSettings;
-  final onboardingRoute = loc.startsWith('/onboarding');
-
-  if (status == SessionStatus.unknown &&
-      loc != AppRoutes.splash &&
-      !languageRoute) {
-    return AppRoutes.splash;
-  }
-
-  if (status == SessionStatus.signedOut) {
-    if (authRoute || languageRoute) return null;
-    return AppRoutes.phone;
-  }
-
-  if (status == SessionStatus.needsDriverProfile) {
-    if (onboardingRoute || languageRoute) return null;
-    return AppRoutes.onboardingProfile;
-  }
-
-  if (status == SessionStatus.signedIn && authRoute) {
-    return AppRoutes.home;
-  }
-
-  return null;
-}
+export 'package:speedygo_driver_app/app/router/driver_navigation_resolver.dart'
+    show driverRedirect, resolveColdStartDestination, DriverNavSnapshot;
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref.listen<SessionState>(sessionControllerProvider, (_, _) {
+    refresh.value++;
+  });
+  ref.listen<DriverNavSnapshot>(driverNavSnapshotProvider, (_, _) {
     refresh.value++;
   });
   ref.onDispose(refresh.dispose);
@@ -72,7 +50,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) {
       final session = ref.read(sessionControllerProvider);
-      return driverRedirect(status: session.status, loc: state.matchedLocation);
+      final snapshot = ref.read(driverNavSnapshotProvider);
+      return driverRedirect(
+        status: session.status,
+        loc: state.matchedLocation,
+        snapshot: snapshot,
+      );
     },
     routes: [
       GoRoute(

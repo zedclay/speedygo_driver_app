@@ -16,6 +16,9 @@ class AppStrings {
 
   static String get appName => isArabic ? 'SpeedyGo سائق' : 'SpeedyGo Driver';
 
+  static String get splashTagline =>
+      isArabic ? 'توصيل بسرعة. بكل ثقة.' : 'Livrez vite. En confiance.';
+
   static String get networkError => isArabic
       ? 'تعذّر الاتصال. أعد المحاولة.'
       : 'Connexion impossible. Réessayez.';
