@@ -1,0 +1,10 @@
+{
+  "runId": "ui_offers_1791571471",
+  "phase": "offline",
+  "fixtureType": "isolated_deterministic_fixture",
+  "api": "http://127.0.0.1:3100/api/v1",
+  "database": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "driverPhoneMasked": "+213550009***",
+  "availabilityPrepared": "OFFLINE"
+}

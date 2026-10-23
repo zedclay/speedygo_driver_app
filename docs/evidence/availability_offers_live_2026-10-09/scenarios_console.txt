@@ -1,0 +1,17 @@
+PASS  fx_api_reachable  http=200
+PASS  auth_sessions  merchant+driver authenticated
+PASS  orders_prefetched  count=4
+PASS  matching_engine_runtime  order=01a121f1… assignment=01a121f1… expiresAt=2026-10-09T18:34:27.175Z
+PASS  accept_offer_visible  method=matching_engine_runtime expiresAt=2026-10-09T18:34:31.994Z remuneration=15000
+PASS  accept_scenario  http=200 status=ACCEPTED method=matching_engine_runtime code=None
+PASS  accept_duplicate_safe  http=409 code=DRIVER_ASSIGNMENT_INVALID_STATE
+PASS  accept_current_delivery  http=200 deliveryStatus=DRIVER_ASSIGNED assignmentStatus=ACCEPTED
+PASS  reject_scenario  http=200 code=None method=isolated_deterministic_fixture
+PASS  reject_duplicate_safe  http=409 code=DRIVER_ASSIGNMENT_INVALID_STATE
+PASS  reject_assignment_released  db=REJECTED|2026-10-09 19:34:07.072+01 current_offer=null
+PASS  reject_no_active_delivery  http=200 delivery=null
+PASS  expiration_offer_readable  expiresAt=2026-10-09T18:34:11.187Z method=isolated_deterministic_fixture
+PASS  expiration_offer_cleared  http=200 offer=null
+PASS  expiration_accept_blocked  http=409 code=DRIVER_ASSIGNMENT_EXPIRED
+PASS  expiration_assignment_terminal  db_status=EXPIRED
+PASS  cleanup  released_assignments=4 orders=4 open_offered_left=0

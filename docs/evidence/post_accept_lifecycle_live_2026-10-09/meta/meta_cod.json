@@ -1,0 +1,20 @@
+{
+  "runId": "fxlive_driver_lifecycle_20261009T235305Z",
+  "classification": "isolated_deterministic_fixture",
+  "paymentMethod": "COD",
+  "expectedCodMinor": 65000,
+  "orderIdSuffix": "a2120933",
+  "deliveryIdSuffix": "23dca11b",
+  "assignmentIdSuffix": "5a64bda6",
+  "assignmentVersion": 1,
+  "startingDeliveryStatus": "DRIVER_ASSIGNED",
+  "pickupHandoffRequired": true,
+  "pickupHandoffNote": "PENDING handoff issued after live arrive-pickup",
+  "branchLat": 36.785,
+  "branchLng": 3.06,
+  "customerLat": 36.77,
+  "customerLng": 3.05,
+  "api": "http://127.0.0.1:3100/api/v1",
+  "database": "speedygo_parity_fx",
+  "redisDb": 9
+}

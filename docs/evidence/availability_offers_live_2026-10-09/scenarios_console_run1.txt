@@ -1,0 +1,10 @@
+PASS  fx_api_reachable  http=200
+PASS  auth_sessions  merchant+driver authenticated
+PASS  orders_prefetched  count=4
+PASS  matching_engine_runtime  order=01a121f0… assignment=01a121f0… expiresAt=2026-10-09T18:33:41.113Z
+PASS  accept_offer_visible  method=matching_engine_runtime expiresAt=2026-10-09T18:33:42.859Z remuneration=15000
+PASS  accept_scenario  http=200 status=ACCEPTED method=matching_engine_runtime code=None
+PASS  accept_duplicate_safe  http=409 code=DRIVER_ASSIGNMENT_INVALID_STATE
+NOT_VERIFIED  accept_current_delivery  http=200 deliveryStatus=DRIVER_ASSIGNED assignmentStatus=ACCEPTED
+FAIL  scenario_runner  location failed http=429
+PASS  cleanup  released_assignments=2 orders=4 open_offered_left=0

@@ -1,0 +1,78 @@
+{
+  "runId": "offers_1791570788",
+  "api": "http://127.0.0.1:3100/api/v1",
+  "database": "speedygo_parity_fx",
+  "redisIndex": 9,
+  "driverPhoneMasked": "+213550009***",
+  "fixtureTypes": [
+    "matching_engine_runtime",
+    "isolated_deterministic_fixture"
+  ],
+  "created": {
+    "orderCount": 4,
+    "assignmentCount": 2
+  },
+  "cleanup": "released_assignments=2 orders=4 open_offered_left=0",
+  "results": [
+    {
+      "check": "fx_api_reachable",
+      "result": "PASS",
+      "detail": "http=200",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "auth_sessions",
+      "result": "PASS",
+      "detail": "merchant+driver authenticated",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "orders_prefetched",
+      "result": "PASS",
+      "detail": "count=4",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "matching_engine_runtime",
+      "result": "PASS",
+      "detail": "order=01a121f0\u2026 assignment=01a121f0\u2026 expiresAt=2026-10-09T18:33:41.113Z",
+      "evidence": "live_matching_realtime"
+    },
+    {
+      "check": "accept_offer_visible",
+      "result": "PASS",
+      "detail": "method=matching_engine_runtime expiresAt=2026-10-09T18:33:42.859Z remuneration=15000",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "accept_scenario",
+      "result": "PASS",
+      "detail": "http=200 status=ACCEPTED method=matching_engine_runtime code=None",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "accept_duplicate_safe",
+      "result": "PASS",
+      "detail": "http=409 code=DRIVER_ASSIGNMENT_INVALID_STATE",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "accept_current_delivery",
+      "result": "NOT_VERIFIED",
+      "detail": "http=200 deliveryStatus=DRIVER_ASSIGNED assignmentStatus=ACCEPTED",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "scenario_runner",
+      "result": "FAIL",
+      "detail": "location failed http=429",
+      "evidence": "authenticated_api"
+    },
+    {
+      "check": "cleanup",
+      "result": "PASS",
+      "detail": "released_assignments=2 orders=4 open_offered_left=0",
+      "evidence": "static_inspection"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "runId": "fxlive_nav_smoke_20261010T004347Z",
+  "phase": "clear",
+  "verificationStatus": "APPROVED",
+  "hasActiveDelivery": false,
+  "database": "speedygo_parity_fx",
+  "redisDb": 9
+}

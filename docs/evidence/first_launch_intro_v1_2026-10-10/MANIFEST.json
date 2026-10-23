@@ -1,0 +1,61 @@
+{
+  "runId": "first_launch_intro_v1_2026-10-10",
+  "title": "Driver First-Launch Intro V1",
+  "date": "2026-10-10",
+  "driverBranch": "feat/driver-first-launch-intro-v1",
+  "baseBranch": "feat/driver-lifecycle-navigation-verified-v1",
+  "baseSha": "c46440ae5eef53f427a5264b34343ff1a39fb57d",
+  "simulator": "iPhone 16e",
+  "simulatorUdid": "8DB9007A-B816-4EC5-86ED-C627AC60F2C5",
+  "persistenceKey": "driver_first_launch_intro_v1_completed",
+  "route": "/welcome-intro",
+  "stitchTracker": {
+    "folders": 47,
+    "unreviewed": 0,
+    "note": "Unchanged. Three intro screens documented separately."
+  },
+  "additionalApprovedScreens": 3,
+  "references": [
+    {
+      "path": "references/ref_page1_full.jpg",
+      "pixels": "473x1024",
+      "source": "SpeedyGo_Driver__Receive_Delivery_Offers-1-9f96ac65-984a-4f88-8d8e-ba1faa6df605.jpg"
+    },
+    {
+      "path": "references/ref_page2_full.jpg",
+      "pixels": "472x1024",
+      "source": "SpeedyGo_delivery_journey_onboarding-2-23c93503-c3e0-4f87-a45d-608e016c62ab.jpg"
+    },
+    {
+      "path": "references/ref_page3_full.jpg",
+      "pixels": "472x1024",
+      "source": "Track_earnings_with_SpeedyGo-3-100ec87e-938b-4421-a59b-2495e06668d2.jpg"
+    }
+  ],
+  "screenshots": {
+    "mocked_widget_ui": [
+      "screenshots/mocked_fr_intro_page1.png",
+      "screenshots/mocked_fr_intro_page2.png",
+      "screenshots/mocked_fr_intro_page3.png",
+      "screenshots/mocked_ar_intro_page1.png",
+      "screenshots/mocked_ar_intro_page2.png",
+      "screenshots/mocked_ar_intro_page3.png"
+    ],
+    "live_driver_ui_verified": [
+      "live/live_fr_intro_page1.png",
+      "live/live_fr_intro_page2.png",
+      "live/live_fr_intro_page3.png",
+      "live/live_fr_destination_phone.png",
+      "live/live_fr_relaunch_skips_intro.png",
+      "live/live_fr_skip_to_phone.png",
+      "live/live_ar_intro_page1.png",
+      "live/live_ar_intro_page2.png",
+      "live/live_ar_intro_page3.png"
+    ]
+  },
+  "notClaimed": [
+    "authenticated_api_verified",
+    "cross_app_e2e_verified",
+    "release_ready"
+  ]
+}

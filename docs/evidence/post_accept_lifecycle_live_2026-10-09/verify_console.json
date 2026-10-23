@@ -1,0 +1,1 @@
+{"ok": true, "deliveryStatus": "DELIVERED", "invariants": {"pickupEventOnce": true, "completionEventOnce": true, "codOnce": true, "earningOnce": true, "noRemittanceFabricated": true, "noAllocationFabricated": true, "delivered": true, "handoffConsumed": true, "paymentSucceeded": true}}
