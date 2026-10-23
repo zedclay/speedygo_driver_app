@@ -65,6 +65,10 @@ class TokenRefresher {
       await _dropLocalPair();
       rethrow;
     } on ApiException catch (error) {
+      if (error.code == 'AUTH_STALE_REFRESH') {
+        await _store.clearRefreshPending();
+        rethrow;
+      }
       if (error.isAuthFailure) {
         await _dropLocalPair();
       } else {

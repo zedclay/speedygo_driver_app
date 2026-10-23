@@ -41,6 +41,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      backgroundColor: DriverTokens.card,
       builder: (_) => const _ComposeSheet(),
     );
     if (created == null || !mounted) return;
@@ -59,11 +60,15 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     ref.watch(localeControllerProvider);
     final state = ref.watch(supportControllerProvider);
     final controller = ref.read(supportControllerProvider.notifier);
+    // Shell provides SpeedyGo AppBar + drawer (matrix 26); page title in body.
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.supportTitle)),
+      backgroundColor: DriverTokens.surface,
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('support_new'),
         onPressed: _compose,
+        backgroundColor: DriverTokens.primary,
+        foregroundColor: DriverTokens.onPrimary,
+        shape: const StadiumBorder(),
         icon: const Icon(Icons.add),
         label: Text(AppStrings.supportNew),
       ),
@@ -77,6 +82,14 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             96,
           ),
           children: [
+            Text(
+              AppStrings.supportTitle,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: DriverTokens.navy,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: DriverTokens.spaceMd),
             if (state.status == PagedStatus.loading && state.items.isEmpty)
               LoadingView(message: AppStrings.loading),
             if (state.status == PagedStatus.error && state.items.isEmpty)
@@ -93,19 +106,66 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             for (final ticket in state.items) ...[
               OperationalCard(
                 key: Key('ticket_${ticket.id}'),
-                title: ticket.subject ?? ticket.publicReference,
-                trailing: StatusBadge(
-                  label: AppStrings.supportStatusLabel(ticket.status),
-                  tone: supportTone(ticket.status),
-                ),
                 onTap: () =>
                     context.push(AppRoutes.supportDetailFor(ticket.id)),
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Text(
-                    '${ticket.publicReference} · '
-                    '${formatIsoDateTime(ticket.updatedAt)}',
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Text(
+                              ticket.publicReference,
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    color: DriverTokens.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          ),
+                        ),
+                        StatusBadge(
+                          label: AppStrings.supportStatusLabel(ticket.status),
+                          tone: supportTone(ticket.status),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: DriverTokens.spaceSm),
+                    Text(
+                      ticket.subject ?? ticket.publicReference,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: DriverTokens.spaceSm),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.schedule,
+                          size: 16,
+                          color: DriverTokens.textSecondary,
+                        ),
+                        const SizedBox(width: 6),
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Text(
+                            formatIsoDateTime(ticket.updatedAt),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: DriverTokens.textSecondary),
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: DriverTokens.outline,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: DriverTokens.spaceMd),

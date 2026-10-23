@@ -2,9 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/errors/app_exception.dart';
+import 'package:speedygo_driver_app/core/money/dzd_amount.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/application/session_controller.dart';
 import 'package:speedygo_driver_app/features/availability/application/availability_providers.dart';
+import 'package:speedygo_driver_app/features/availability/application/driver_location_gate.dart';
 import 'package:speedygo_driver_app/features/availability/data/availability_api.dart';
 import 'package:speedygo_driver_app/features/availability/data/device_location.dart';
 import 'package:speedygo_driver_app/features/availability/data/offer_models.dart';
@@ -40,10 +42,11 @@ class CurrentDeliveryState {
 
   bool get submitting => busyAction != null;
 
-  int? get codAmountMinor {
-    if (codAmountInput.isEmpty) return null;
-    return int.tryParse(codAmountInput);
-  }
+  /// Parsed DZD entry → integer minor units for the existing collect-cod API.
+  int? get codAmountMinor => parseDzdInputToMinor(codAmountInput);
+
+  bool get hasInvalidCodAmount =>
+      codAmountInput.isNotEmpty && codAmountMinor == null;
 
   bool get canSubmit {
     if (submitting) return false;
@@ -108,7 +111,7 @@ class CurrentDeliveryController extends Notifier<CurrentDeliveryState> {
   @override
   CurrentDeliveryState build() {
     ref.listen<SessionState>(sessionControllerProvider, (previous, next) {
-      if (next.status == SessionStatus.signedOut) {
+      if (!next.canRunDriverOps) {
         state = const CurrentDeliveryState();
       }
     });
@@ -118,6 +121,7 @@ class CurrentDeliveryController extends Notifier<CurrentDeliveryState> {
   DeliveryClient get _api => ref.read(deliveryClientProvider);
   AvailabilityClient get _availability => ref.read(availabilityClientProvider);
   DeviceLocationSource get _location => ref.read(deviceLocationSourceProvider);
+  DriverLocationGate get _locationGate => ref.read(driverLocationGateProvider);
 
   static String? pathForAction(String action) {
     switch (action) {
@@ -195,9 +199,8 @@ class CurrentDeliveryController extends Notifier<CurrentDeliveryState> {
   }
 
   void updateCodAmount(String value) {
-    final digits = value.replaceAll(RegExp(r'\D'), '');
     state = state.copyWith(
-      codAmountInput: digits,
+      codAmountInput: sanitizeDzdInput(value),
       clearError: true,
       clearSuccess: true,
     );
@@ -245,12 +248,26 @@ class CurrentDeliveryController extends Notifier<CurrentDeliveryState> {
       state = state.copyWith(
         clearBusy: true,
         errorMessage: AppStrings.locationErrorFor(error.failure.name),
+        errorCode: error.failure.name,
       );
     } on AppException catch (error) {
+      final code = error.code;
+      final isProximity =
+          code == 'DRIVER_DELIVERY_NOT_NEAR_PICKUP' ||
+          code == 'DRIVER_DELIVERY_NOT_NEAR_DROPOFF';
+      final isLocationApi =
+          code == 'NETWORK' ||
+          code == 'DRIVER_DELIVERY_LOCATION_REQUIRED' ||
+          code == 'DRIVER_DELIVERY_LOCATION_STALE' ||
+          (code != null && code.startsWith('DRIVER_LOCATION'));
       state = state.copyWith(
         clearBusy: true,
-        errorMessage: error.message,
-        errorCode: error.code,
+        errorMessage: isProximity
+            ? AppStrings.errorForCode(code)
+            : isLocationApi
+            ? AppStrings.locationApiErrorFor(code, fallback: error.message)
+            : error.message,
+        errorCode: code,
       );
     }
   }
@@ -337,6 +354,25 @@ class CurrentDeliveryController extends Notifier<CurrentDeliveryState> {
   }
 
   Future<void> _publishFreshLocation() async {
+    final outcome = await _locationGate.ensureAccess(allowAutoRequest: true);
+    switch (outcome) {
+      case LocationAccessOutcome.servicesDisabled:
+        throw const DeviceLocationException(
+          DeviceLocationFailure.servicesDisabled,
+        );
+      case LocationAccessOutcome.permissionDeniedForever:
+        throw const DeviceLocationException(
+          DeviceLocationFailure.permissionDeniedForever,
+        );
+      case LocationAccessOutcome.permissionDenied:
+        throw const DeviceLocationException(
+          DeviceLocationFailure.permissionDenied,
+        );
+      case LocationAccessOutcome.unableToDetermine:
+        throw const DeviceLocationException(DeviceLocationFailure.unavailable);
+      case LocationAccessOutcome.ready:
+        break;
+    }
     final position = await _location.getCurrentPosition();
     await _availability.publishLocation(
       DriverLocationUpdate(

@@ -23,11 +23,23 @@ class ApiException extends AppException {
   final int? statusCode;
   final int? retryAfterSeconds;
 
+  /// Confirmed authentication rejection. HTTP 401 alone is not enough —
+  /// a transient refresh failure forwards the original 401.
   bool get isAuthFailure =>
-      statusCode == 401 ||
       code == 'AUTH_INVALID_TOKEN' ||
-      code == 'AUTH_STALE_REFRESH' ||
-      code == 'AUTH_UNAUTHORIZED';
+      code == 'AUTH_SESSION_REVOKED' ||
+      code == 'AUTH_SESSION_EXPIRED' ||
+      code == 'AUTH_UNAUTHORIZED' ||
+      code == 'AUTH_AUDIENCE_MISMATCH' ||
+      code == 'AUTH_AUDIENCE_LEGACY_REJECTED' ||
+      code == 'AUTH_APP_AUDIENCE_REQUIRED';
+
+  bool get isPermissionDenied =>
+      !isAuthFailure &&
+      (statusCode == 403 ||
+          code == 'AUTH_FORBIDDEN' ||
+          code == 'AUTH_ACCOUNT_SUSPENDED' ||
+          code == 'AUTH_ACCOUNT_DISABLED');
 }
 
 class RefreshAmbiguousException extends AppException {

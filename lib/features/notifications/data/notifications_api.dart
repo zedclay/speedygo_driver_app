@@ -11,6 +11,7 @@ class AppNotification {
     required this.body,
     required this.read,
     required this.createdAt,
+    this.sourceId = '',
   });
 
   final String id;
@@ -19,6 +20,7 @@ class AppNotification {
   final String body;
   final bool read;
   final String createdAt;
+  final String sourceId;
 
   AppNotification copyWith({bool? read}) => AppNotification(
     id: id,
@@ -27,17 +29,29 @@ class AppNotification {
     body: body,
     read: read ?? this.read,
     createdAt: createdAt,
+    sourceId: sourceId,
   );
 
-  factory AppNotification.fromJson(Map<String, dynamic> json) =>
-      AppNotification(
-        id: jsonStr(json['id']),
-        type: jsonStr(json['type']),
-        title: jsonStr(json['title']),
-        body: jsonStr(json['body']),
-        read: json['read'] == true,
-        createdAt: jsonStr(json['createdAt']),
-      );
+  factory AppNotification.fromJson(Map<String, dynamic> json) {
+    var sourceId = jsonStr(json['sourceId']);
+    final category = jsonStr(json['category']);
+    if (sourceId.isEmpty && category.contains(':')) {
+      sourceId = category.substring(category.indexOf(':') + 1);
+    }
+    var type = jsonStr(json['type']);
+    if (type.isEmpty && category.contains(':')) {
+      type = category.substring(0, category.indexOf(':'));
+    }
+    return AppNotification(
+      id: jsonStr(json['id']),
+      type: type,
+      title: jsonStr(json['title']),
+      body: jsonStr(json['body']),
+      read: json['read'] == true,
+      createdAt: jsonStr(json['createdAt']),
+      sourceId: sourceId,
+    );
+  }
 }
 
 class NotificationPage {
@@ -121,23 +135,56 @@ class FakeNotificationsClient implements NotificationsClient {
   int? unread;
   final List<String> markedRead = [];
   int markAllCount = 0;
+  int listCalls = 0;
+  Object? listError;
+  Object? Function(int offset)? listErrorForOffset;
+  Object? markReadError;
+  Object? markAllError;
+  Object? unreadError;
+  bool overlapOnLoadMore = false;
+  Duration Function(int callCount)? listDelayForCall;
 
   int get _unread => unread ?? items.where((n) => !n.read).length;
 
   @override
-  Future<NotificationPage> list({int limit = 30, int offset = 0}) async =>
-      NotificationPage(
-        items: items,
-        page: PageInfo(total: items.length, limit: limit, offset: offset),
-        unreadCount: _unread,
-      );
+  Future<NotificationPage> list({int limit = 30, int offset = 0}) async {
+    listCalls += 1;
+    final delay = listDelayForCall?.call(listCalls);
+    if (delay != null && delay > Duration.zero) {
+      await Future<void>.delayed(delay);
+    }
+    if (listError != null) {
+      throw listError!;
+    }
+    final offsetError = listErrorForOffset?.call(offset);
+    if (offsetError != null) {
+      throw offsetError;
+    }
+    final snapshot = List.of(items);
+    final slice = overlapOnLoadMore && offset > 0
+        ? snapshot.take(limit).toList()
+        : snapshot.skip(offset).take(limit).toList();
+    return NotificationPage(
+      items: slice,
+      page: PageInfo(total: snapshot.length, limit: limit, offset: offset),
+      unreadCount: _unread,
+    );
+  }
 
   @override
-  Future<int> unreadCount() async => _unread;
+  Future<int> unreadCount() async {
+    if (unreadError != null) {
+      throw unreadError!;
+    }
+    return _unread;
+  }
 
   @override
   Future<void> markRead(String id) async {
     markedRead.add(id);
+    if (markReadError != null) {
+      throw markReadError!;
+    }
     items = [for (final n in items) n.id == id ? n.copyWith(read: true) : n];
     unread = null;
   }
@@ -145,6 +192,9 @@ class FakeNotificationsClient implements NotificationsClient {
   @override
   Future<void> markAllRead() async {
     markAllCount += 1;
+    if (markAllError != null) {
+      throw markAllError!;
+    }
     items = [for (final n in items) n.copyWith(read: true)];
     unread = null;
   }

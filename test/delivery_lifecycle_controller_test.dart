@@ -201,18 +201,35 @@ void main() {
       await controller().load();
     });
 
-    test('amount input is digits only and parsed as integer minor units', () {
-      controller().updateCodAmount('12a00');
-      expect(state().codAmountInput, '1200');
-      expect(state().codAmountMinor, 1200);
+    test('DZD entry converts exactly to minor units for the API', () {
+      controller().updateCodAmount('650');
+      expect(state().codAmountInput, '650');
+      expect(state().codAmountMinor, 65000);
       expect(state().canCollectCod, isTrue);
+
+      controller().updateCodAmount('650,50');
+      expect(state().codAmountMinor, 65050);
+
+      controller().updateCodAmount('١٢.٥');
+      expect(state().codAmountMinor, 1250);
+
+      // Extra fractional digits are clipped while typing; trailing sep is invalid.
+      controller().updateCodAmount('12.345');
+      expect(state().codAmountInput, '12.34');
+      expect(state().codAmountMinor, 1234);
+
+      controller().updateCodAmount('12.');
+      expect(state().hasInvalidCodAmount, isTrue);
+      expect(state().canCollectCod, isFalse);
+
       controller().updateCodAmount('');
       expect(state().canCollectCod, isFalse);
     });
 
-    test('sends the exact integer to the server', () async {
-      await controller().collectCod(1200);
-      expect(delivery.lastCollectedAmountMinor, 1200);
+    test('sends the exact integer minor units to the server', () async {
+      controller().updateCodAmount('650');
+      await controller().collectCod(state().codAmountMinor!);
+      expect(delivery.lastCollectedAmountMinor, 65000);
       expect(state().codCollected, isTrue);
       expect(state().successMessage, AppStrings.codCollectedSuccess);
     });
@@ -284,7 +301,8 @@ void main() {
       );
       expect(collect.onPressed, isNull);
 
-      await tester.enterText(find.byKey(const Key('cod_amount_field')), '1200');
+      // Drivers enter DZD; 12.00 DA → amountMinor 1200 for the existing API.
+      await tester.enterText(find.byKey(const Key('cod_amount_field')), '12');
       await tester.pump();
       await tester.ensureVisible(find.byKey(const Key('cod_collect_button')));
       // Live regression: collect must sit above the sticky complete bar.

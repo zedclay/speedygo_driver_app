@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+/// Coverage-matrix contract (JSON + markdown). PNG review evidence is
+/// asserted separately in `stitch_evidence_artifacts_test.dart`.
+
 void main() {
   late Map<String, dynamic> json;
   late String markdown;
@@ -64,17 +67,5 @@ void main() {
       expect(s['provider_dependencies'], isA<Map>());
     }
     expect(json['deferred_provider_dependency_rows'], 9);
-  });
-
-  test('evidence directory has 16 FR and 16 AR mocked captures', () {
-    final fr = Directory('docs/evidence/stitch_full_ui_2026-10-09/fr');
-    final ar = Directory('docs/evidence/stitch_full_ui_2026-10-09/ar');
-    expect(fr.listSync().whereType<File>().length, 16);
-    expect(ar.listSync().whereType<File>().length, 16);
-    final manifest = File('docs/evidence/stitch_full_ui_2026-10-09/MANIFEST.md')
-        .readAsStringSync();
-    expect(manifest, contains('mocked_widget_ui'));
-    expect(manifest, contains('not: live_authenticated_ui'));
-    expect(manifest, contains('not: live_ui_verified'));
   });
 }

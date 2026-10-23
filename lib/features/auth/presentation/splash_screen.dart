@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/constants/driver_assets.dart';
+import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
+import 'package:speedygo_driver_app/features/auth/application/session_controller.dart';
 import 'package:speedygo_driver_app/features/auth/presentation/splash_backdrop.dart';
 import 'package:speedygo_driver_app/features/first_launch_intro/application/first_launch_intro_controller.dart';
 
@@ -57,6 +59,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     }
     if (!mounted) return;
 
+    final session = ref.read(sessionControllerProvider);
+    if (session.status == SessionStatus.restoreRetryable) {
+      return;
+    }
+
     if (!introCompleted) {
       context.go(AppRoutes.welcomeIntro);
       return;
@@ -66,6 +73,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         .read(driverNavSnapshotProvider.notifier)
         .resolveAfterSession();
     if (!mounted) return;
+    if (ref.read(sessionControllerProvider).status ==
+        SessionStatus.restoreRetryable) {
+      return;
+    }
+    context.go(target);
+  }
+
+  Future<void> _retryRestore() async {
+    await ref.read(sessionControllerProvider.notifier).retryRestore();
+    if (!mounted) return;
+    final session = ref.read(sessionControllerProvider);
+    if (session.status == SessionStatus.restoreRetryable) {
+      return;
+    }
+    final introCompleted = ref.read(firstLaunchIntroCompletedProvider) == true;
+    if (!introCompleted) {
+      context.go(AppRoutes.welcomeIntro);
+      return;
+    }
+    final target = await ref
+        .read(driverNavSnapshotProvider.notifier)
+        .resolveAfterSession();
+    if (!mounted) return;
+    if (ref.read(sessionControllerProvider).status ==
+        SessionStatus.restoreRetryable) {
+      return;
+    }
     context.go(target);
   }
 
@@ -78,6 +112,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     ref.watch(localeControllerProvider);
+    final session = ref.watch(sessionControllerProvider);
+    final retryable = session.status == SessionStatus.restoreRetryable;
     final size = MediaQuery.sizeOf(context);
     final padding = MediaQuery.paddingOf(context);
     final logoSize = DriverSplashMetrics.logoAssetSize(size);
@@ -166,26 +202,119 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               left: 0,
               right: 0,
               bottom: loaderBottom,
-              child: Center(
-                child: reduceMotion
-                    ? const CustomPaint(
-                        key: Key('splash-loader'),
-                        size: Size.square(DriverSplashMetrics.loaderSize),
-                        painter: DriverSplashLoaderPainter(),
-                      )
-                    : RotationTransition(
-                        turns: _loaderTurns,
-                        child: const CustomPaint(
-                          key: Key('splash-loader'),
-                          size: Size.square(DriverSplashMetrics.loaderSize),
-                          painter: DriverSplashLoaderPainter(),
-                        ),
+              child: retryable
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _SplashRestorePanel(
+                        message:
+                            session.restoreBanner ?? AppStrings.restoreOffline,
+                        busy: session.busy,
+                        onRetry: _retryRestore,
+                        onOtherAccount: () {
+                          ref
+                              .read(sessionControllerProvider.notifier)
+                              .logout();
+                          context.go(AppRoutes.phone);
+                        },
+                        onLanguage: () =>
+                            context.push(AppRoutes.languageSettingsAuth),
                       ),
-              ),
+                    )
+                  : Center(
+                      child: reduceMotion
+                          ? const CustomPaint(
+                              key: Key('splash-loader'),
+                              size: Size.square(DriverSplashMetrics.loaderSize),
+                              painter: DriverSplashLoaderPainter(),
+                            )
+                          : RotationTransition(
+                              turns: _loaderTurns,
+                              child: const CustomPaint(
+                                key: Key('splash-loader'),
+                                size: Size.square(
+                                  DriverSplashMetrics.loaderSize,
+                                ),
+                                painter: DriverSplashLoaderPainter(),
+                              ),
+                            ),
+                    ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SplashRestorePanel extends StatelessWidget {
+  const _SplashRestorePanel({
+    required this.message,
+    required this.busy,
+    required this.onRetry,
+    required this.onOtherAccount,
+    required this.onLanguage,
+  });
+
+  final String message;
+  final bool busy;
+  final VoidCallback onRetry;
+  final VoidCallback onOtherAccount;
+  final VoidCallback onLanguage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          message,
+          key: const Key('splash_restore_message'),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            height: 1.35,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: FilledButton(
+            key: const Key('splash_restore_retry'),
+            onPressed: busy ? null : onRetry,
+            style: FilledButton.styleFrom(
+              backgroundColor: DriverTokens.primary,
+              foregroundColor: DriverTokens.onPrimary,
+            ),
+            child: busy
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(AppStrings.restoreRetry),
+          ),
+        ),
+        TextButton(
+          key: const Key('splash_restore_other_account'),
+          onPressed: busy ? null : onOtherAccount,
+          style: TextButton.styleFrom(foregroundColor: Colors.white),
+          child: Text(AppStrings.restoreOtherAccount),
+        ),
+        TextButton(
+          key: const Key('splash_restore_language'),
+          onPressed: onLanguage,
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white.withValues(alpha: 0.85),
+          ),
+          child: Text(AppStrings.languageSettingsTitle),
+        ),
+      ],
     );
   }
 }

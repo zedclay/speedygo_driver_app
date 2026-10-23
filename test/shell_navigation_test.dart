@@ -14,8 +14,10 @@ import 'package:speedygo_driver_app/features/availability/application/driver_hom
 import 'package:speedygo_driver_app/features/availability/data/availability_api.dart';
 import 'package:speedygo_driver_app/features/availability/data/device_location.dart';
 import 'package:speedygo_driver_app/features/availability/data/driver_me_models.dart';
+import 'package:speedygo_driver_app/features/availability/data/offer_models.dart';
 import 'package:speedygo_driver_app/features/delivery/application/current_delivery_controller.dart';
 import 'package:speedygo_driver_app/features/delivery/data/delivery_api.dart';
+import 'package:speedygo_driver_app/features/delivery/data/delivery_models.dart';
 import 'package:speedygo_driver_app/features/earnings/application/earnings_controller.dart';
 import 'package:speedygo_driver_app/features/earnings/data/earnings_api.dart';
 import 'package:speedygo_driver_app/features/history/application/history_controller.dart';
@@ -59,9 +61,42 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
+AssignmentOffer _offer() => AssignmentOffer(
+  assignmentId: 'asg-offer',
+  deliveryId: 'del-1',
+  orderPublicReference: 'SG-42',
+  status: 'OFFERED',
+  offeredAt: '2099-01-01T00:00:00.000Z',
+  expiresAt: '2099-01-01T00:00:30.000Z',
+  driverRemunerationMinor: '300',
+  pickupName: 'Café Atlas',
+  pickupDistanceMeters: 350,
+  deliveryDistanceMeters: 1200,
+);
+
+DriverCurrentDelivery _atPickup({bool confirmPickup = false}) =>
+    DriverCurrentDelivery(
+      assignmentId: 'asg-1',
+      assignmentVersion: 1,
+      deliveryId: 'del-1',
+      orderId: 'ord-1',
+      deliveryStatus: 'AT_PICKUP',
+      orderStatus: 'IN_DELIVERY',
+      fulfillmentStatus: confirmPickup ? 'READY' : 'PREPARING',
+      assignmentStatus: 'ACCEPTED',
+      allowedActions: [
+        if (confirmPickup) DeliveryActions.confirmPickup,
+      ],
+      pickedUpAt: null,
+      arrivedCustomerAt: null,
+      deliveredAt: null,
+    );
+
 Future<ProviderContainer> _pumpApp(
   WidgetTester tester, {
   String locale = 'fr',
+  FakeAvailabilityClient? availability,
+  FakeDeliveryClient? delivery,
 }) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1.0;
@@ -76,10 +111,10 @@ Future<ProviderContainer> _pumpApp(
       sessionStoreProvider.overrideWithValue(MemorySessionStore()),
       localeStoreProvider.overrideWithValue(MemoryLocaleStore(locale: locale)),
       availabilityClientProvider.overrideWithValue(
-        FakeAvailabilityClient(me: _me()),
+        availability ?? FakeAvailabilityClient(me: _me()),
       ),
       deliveryClientProvider.overrideWithValue(
-        FakeDeliveryClient(current: null),
+        delivery ?? FakeDeliveryClient(current: null),
       ),
       deviceLocationSourceProvider.overrideWithValue(
         FakeDeviceLocationSource(),
@@ -105,7 +140,13 @@ Future<ProviderContainer> _pumpApp(
       ),
     ],
   );
-  addTearDown(container.dispose);
+  var disposed = false;
+  addTearDown(() {
+    if (!disposed) {
+      disposed = true;
+      container.dispose();
+    }
+  });
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const SpeedyGoApp()),
   );
@@ -140,6 +181,13 @@ void main() {
       );
       expect(
         driverRedirect(status: SessionStatus.signedOut, loc: AppRoutes.otp),
+        isNull,
+      );
+      expect(
+        driverRedirect(
+          status: SessionStatus.signedOut,
+          loc: AppRoutes.languageSettingsAuth,
+        ),
         isNull,
       );
       expect(
@@ -228,31 +276,42 @@ void main() {
   });
 
   group('driver shell', () {
-    testWidgets('shows 4 tabs, title, profile + notifications, no drawer', (
+    testWidgets('shows white header, bottom tabs, menu, drawer nav', (
       tester,
     ) async {
       await _pumpApp(tester);
       expect(find.byType(NavigationBar), findsOneWidget);
-      expect(find.byType(NavigationDestination), findsNWidgets(4));
-      expect(find.text('Commandes'), findsWidgets);
-      expect(find.text('Historique'), findsOneWidget);
-      expect(find.text('Gains'), findsOneWidget);
-      expect(find.text('Profil'), findsOneWidget);
+      expect(find.byKey(const Key('shell_bottom_nav')), findsOneWidget);
+      expect(find.byKey(const Key('tab_orders')), findsOneWidget);
       expect(find.byKey(const Key('shell_title')), findsOneWidget);
-      expect(find.byKey(const Key('shell_profile_button')), findsOneWidget);
+      expect(find.byKey(const Key('shell_menu_button')), findsOneWidget);
       expect(find.byKey(const Key('shell_notifications')), findsOneWidget);
-      expect(find.byType(Drawer), findsNothing);
-      expect(find.byType(DrawerButton), findsNothing);
-      // Home is the first branch and no longer owns logout.
       expect(find.byKey(const Key('availability_card')), findsOneWidget);
+      expect(find.byKey(const Key('go_online_button')), findsOneWidget);
       expect(find.byKey(const Key('home_logout')), findsNothing);
       expect(find.byKey(const Key('logout')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
+      expect(find.byType(Drawer), findsOneWidget);
+      expect(find.byKey(const Key('nav_orders')), findsOneWidget);
+      expect(find.byKey(const Key('nav_history')), findsOneWidget);
+      expect(find.byKey(const Key('nav_earnings')), findsOneWidget);
+      expect(find.byKey(const Key('nav_profile')), findsOneWidget);
+      expect(find.byKey(const Key('nav_vehicle')), findsOneWidget);
+      expect(find.byKey(const Key('nav_support')), findsOneWidget);
+      expect(find.text('Commandes'), findsWidgets);
+      expect(find.text('Historique'), findsWidgets);
+      expect(find.text('Gains'), findsWidgets);
+      expect(find.text('Profil'), findsWidgets);
     });
 
-    testWidgets('tabs switch branches and touch targets are >= 48', (
+    testWidgets('drawer switches branches and touch targets are >= 48', (
       tester,
     ) async {
       await _pumpApp(tester);
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
       for (final key in ['nav_history', 'nav_earnings', 'nav_profile']) {
         final size = tester.getSize(find.byKey(Key(key)));
         expect(size.height, greaterThanOrEqualTo(48));
@@ -262,28 +321,34 @@ void main() {
       await _settle(tester);
       expect(find.text(AppStrings.historyEmpty), findsOneWidget);
 
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
       await tester.tap(find.byKey(const Key('nav_earnings')));
       await _settle(tester);
       expect(find.byKey(const Key('earnings_summary_card')), findsOneWidget);
 
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
       await tester.tap(find.byKey(const Key('nav_profile')));
       await _settle(tester);
       expect(find.byKey(const Key('profile_name')), findsOneWidget);
       expect(find.text('Amine Driver'), findsOneWidget);
-      // Logout lives on profile.
       expect(find.byKey(const Key('logout')), findsOneWidget);
 
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
       await tester.tap(find.byKey(const Key('nav_orders')));
       await _settle(tester);
       expect(find.byKey(const Key('availability_card')), findsOneWidget);
     });
 
-    testWidgets('profile avatar opens the profile tab', (tester) async {
+    testWidgets('shell profile affordance opens the profile tab', (
+      tester,
+    ) async {
       final container = await _pumpApp(tester);
       await tester.tap(find.byKey(const Key('shell_profile_button')));
       await _settle(tester);
       expect(find.byKey(const Key('profile_header')), findsOneWidget);
-      // Opening Profile must not log the user out.
       expect(
         container.read(sessionControllerProvider).status,
         SessionStatus.signedIn,
@@ -305,31 +370,119 @@ void main() {
       expect(find.text(AppStrings.notificationsUnread), findsNothing);
     });
 
-    testWidgets('Arabic labels are used for tabs', (tester) async {
+    testWidgets('Arabic labels are used for drawer items', (tester) async {
       await _pumpApp(tester, locale: 'ar');
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
       expect(find.text('الطلبات'), findsWidgets);
-      expect(find.text('السجل'), findsOneWidget);
-      expect(find.text('الأرباح'), findsOneWidget);
-      expect(find.text('الملف'), findsOneWidget);
+      expect(find.text('السجل'), findsWidgets);
+      expect(find.text('الأرباح'), findsWidgets);
+      expect(find.text('الملف'), findsWidgets);
     });
 
-    testWidgets('logout is confirmed from profile via bottom sheet', (
+    testWidgets('logout opens full-screen confirmation; cancel keeps session', (
       tester,
     ) async {
       final container = await _pumpApp(tester);
+      await tester.tap(find.byKey(const Key('shell_menu_button')));
+      await _settle(tester);
       await tester.tap(find.byKey(const Key('nav_profile')));
       await _settle(tester);
       await tester.ensureVisible(find.byKey(const Key('logout')));
       await tester.tap(find.byKey(const Key('logout')));
       await _settle(tester);
-      expect(find.text(AppStrings.logoutConfirmTitle), findsOneWidget);
-      await tester.tap(find.byKey(const Key('confirmation_cancel')));
-      await _settle(tester);
-      expect(find.text(AppStrings.logoutConfirmTitle), findsNothing);
+      expect(find.text(AppStrings.logoutScreenTitle), findsWidgets);
+      expect(find.byKey(const Key('logout_confirm')), findsOneWidget);
+      final cancel = find.byKey(const Key('confirmation_cancel'));
+      expect(cancel, findsOneWidget);
+      await tester.ensureVisible(cancel);
+      await tester.tap(cancel, warnIfMissed: true);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('logout_confirm')), findsNothing);
       expect(
         container.read(sessionControllerProvider).status,
         SessionStatus.signedIn,
       );
+    });
+
+    testWidgets('nested profile vehicle keeps bottom tabs and Back', (
+      tester,
+    ) async {
+      final container = await _pumpApp(tester);
+      final router = container.read(appRouterProvider);
+      router.go(AppRoutes.vehicle);
+      await _settle(tester);
+      expect(find.byKey(const Key('shell_bottom_nav')), findsOneWidget);
+      expect(find.byKey(const Key('shell_menu_button')), findsNothing);
+      expect(find.text(AppStrings.vehicleTitle), findsWidgets);
+    });
+
+    testWidgets('live offer hides bottom tabs and shows focused app bar', (
+      tester,
+    ) async {
+      final availability = FakeAvailabilityClient(
+        me: const DriverMe(
+          driverProfileExists: true,
+          profileComplete: true,
+          identityDocumentComplete: true,
+          drivingLicenseComplete: true,
+          vehicleComplete: true,
+          verificationSubmitted: true,
+          verificationApproved: true,
+          operationalReady: true,
+          matchingEligible: true,
+          profileFullName: 'Amine Driver',
+          verificationStatus: 'APPROVED',
+          availability: DriverAvailabilityInfo(
+            status: 'ONLINE',
+            offlineAfterCurrentDelivery: false,
+            updatedAt: 't',
+          ),
+        ),
+        offer: _offer(),
+      );
+      final container = await _pumpApp(tester, availability: availability);
+      await _settle(tester);
+      expect(find.byKey(const Key('offer_card')), findsOneWidget);
+      expect(find.byKey(const Key('offer_focused_app_bar')), findsOneWidget);
+      expect(find.byKey(const Key('shell_bottom_nav')), findsNothing);
+      expect(find.byKey(const Key('go_online_button')), findsNothing);
+      expect(find.byKey(const Key('offer_accept_button')), findsOneWidget);
+      // Clear offer + go offline so home controller cancels polling timers.
+      availability.offer = null;
+      availability.me = _me();
+      await container.read(driverHomeControllerProvider.notifier).refresh(
+        full: true,
+      );
+      await _settle(tester);
+    });
+
+    testWidgets('AT_PICKUP without confirm keeps Commandes tabs', (
+      tester,
+    ) async {
+      final container = await _pumpApp(
+        tester,
+        delivery: FakeDeliveryClient(current: _atPickup()),
+      );
+      final router = container.read(appRouterProvider);
+      router.go(AppRoutes.currentDelivery);
+      await _settle(tester);
+      expect(find.byKey(const Key('shell_bottom_nav')), findsOneWidget);
+      expect(find.byKey(const Key('shell_menu_button')), findsNothing);
+    });
+
+    testWidgets('AT_PICKUP confirm-pickup hides bottom tabs', (tester) async {
+      final container = await _pumpApp(
+        tester,
+        delivery: FakeDeliveryClient(
+          current: _atPickup(confirmPickup: true),
+        ),
+      );
+      final router = container.read(appRouterProvider);
+      router.go(AppRoutes.currentDelivery);
+      await _settle(tester);
+      expect(find.byKey(const Key('shell_bottom_nav')), findsNothing);
+      expect(find.byKey(const Key('pickup_code_card')), findsOneWidget);
     });
   });
 

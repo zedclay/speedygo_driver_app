@@ -45,6 +45,8 @@ dependencies:
   json_annotation: ^4.9.0
   intl: any
   geolocator: ^14.1.1
+  file_picker: ^13.1.0
+  image_picker: ^1.2.3
 
 dev_dependencies:
   flutter_test:

@@ -37,6 +37,34 @@ class _OnboardingDocumentScreenState
     super.dispose();
   }
 
+  String _iso(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+
+  Future<void> _pickExpiry() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final parsed = DateTime.tryParse(_expiry.text.trim());
+    final initial = (parsed != null && !parsed.isBefore(today))
+        ? parsed
+        : today.add(const Duration(days: 365));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial.isAfter(today.add(const Duration(days: 3650)))
+          ? today.add(const Duration(days: 365))
+          : initial,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365 * 20)),
+      helpText: AppStrings.licenseExpiryLabel,
+    );
+    if (!mounted || picked == null) return;
+    setState(() {
+      _expiry.text = _iso(picked);
+      _expiryError = null;
+    });
+  }
+
   Future<void> _upload() async {
     final expiry = _expiry.text.trim();
     if (_isLicense && !isFutureIsoDate(expiry)) {
@@ -94,12 +122,21 @@ class _OnboardingDocumentScreenState
             child: TextField(
               key: const Key('onboarding_expiry'),
               controller: _expiry,
-              keyboardType: TextInputType.datetime,
+              readOnly: true,
+              showCursor: false,
+              enableInteractiveSelection: false,
+              onTap: _pickExpiry,
               decoration: InputDecoration(
                 labelText: AppStrings.licenseExpiryLabel,
                 helperText: _isLicense ? AppStrings.licenseExpiryHint : null,
                 errorText: _expiryError,
                 helperMaxLines: 2,
+                suffixIcon: IconButton(
+                  key: const Key('onboarding_expiry_picker'),
+                  tooltip: AppStrings.licenseExpiryLabel,
+                  onPressed: _pickExpiry,
+                  icon: const Icon(Icons.calendar_today_outlined),
+                ),
               ),
             ),
           ),

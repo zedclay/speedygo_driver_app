@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
+import 'package:speedygo_driver_app/core/money/dzd_amount.dart';
 import 'package:speedygo_driver_app/core/network/api_error_parser.dart';
 import 'package:speedygo_driver_app/core/utils/json_helpers.dart';
 import 'package:speedygo_driver_app/features/earnings/data/earnings_models.dart';
@@ -59,7 +60,9 @@ class EarningsApi implements EarningsClient {
       _guard(() async {
         await _dio.post<dynamic>(
           ApiEndpoints.driverCodRemittancesPath,
-          data: {'submittedAmountMinor': submittedAmountMinor},
+          data: {
+          'submittedAmount': formatCentimesAsDzdV2(submittedAmountMinor),
+        },
         );
       });
 }

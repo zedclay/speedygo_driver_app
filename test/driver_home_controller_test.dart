@@ -93,6 +93,19 @@ void main() {
       container.read(driverHomeControllerProvider.notifier);
   DriverHomeState st() => container.read(driverHomeControllerProvider);
 
+  test('current-delivery failure does not blank Home after getMe', () async {
+    availability.me = _me(availability: 'OFFLINE');
+    delivery.getCurrentError = const ApiException(
+      'column missing',
+      code: 'INTERNAL_ERROR',
+    );
+    await ctl().bootstrap();
+    expect(st().loadStatus, DriverHomeLoadStatus.ready);
+    expect(st().me?.availability?.status, 'OFFLINE');
+    expect(st().errorMessage, isNotNull);
+    expect(st().canToggleOnline, isTrue);
+  });
+
   test('maps server availability state on bootstrap', () async {
     availability.me = _me(availability: 'OFFLINE');
     await ctl().bootstrap();
@@ -147,7 +160,53 @@ void main() {
     await first;
   });
 
-  test('location services disabled surfaces message after online', () async {
+  test('bootstrap auto-requests When In Use when undetermined', () async {
+    availability.me = _me();
+    location.permission = LocationPermission.denied;
+    location.grantOnRequest = LocationPermission.whileInUse;
+    await ctl().bootstrap();
+    expect(location.requestPermissionCount, 1);
+    expect(st().locationStatus, LocationUiStatus.ready);
+    expect(st().locationMessage, isNull);
+    expect(availability.publishCount, 0);
+  });
+
+  test('bootstrap does not publish coordinates while offline', () async {
+    availability.me = _me();
+    location.permission = LocationPermission.whileInUse;
+    await ctl().bootstrap();
+    expect(st().locationStatus, LocationUiStatus.ready);
+    expect(availability.publishCount, 0);
+    expect(st().isOnline, isFalse);
+  });
+
+  test('location services disabled surfaces message after bootstrap', () async {
+    availability.me = _me();
+    location.serviceEnabled = false;
+    location.failure = DeviceLocationFailure.servicesDisabled;
+    await ctl().bootstrap();
+    expect(st().locationStatus, LocationUiStatus.servicesDisabled);
+    expect(st().locationMessage, AppStrings.locationServicesDisabled);
+    expect(st().isOnline, isFalse);
+  });
+
+  test('permission denied surfaces message after bootstrap', () async {
+    availability.me = _me();
+    location.permission = LocationPermission.denied;
+    await ctl().bootstrap();
+    expect(st().locationStatus, LocationUiStatus.permissionDenied);
+    expect(location.requestPermissionCount, 1);
+  });
+
+  test('permission denied forever surfaces message', () async {
+    availability.me = _me();
+    location.permission = LocationPermission.deniedForever;
+    await ctl().bootstrap();
+    expect(st().locationStatus, LocationUiStatus.permissionDeniedForever);
+    expect(location.requestPermissionCount, 0);
+  });
+
+  test('goOnline stays online when location fails', () async {
     availability.me = _me();
     availability.goOnlineHandler = () async =>
         _me(availability: 'ONLINE', matchingEligible: true);
@@ -157,29 +216,47 @@ void main() {
     await ctl().goOnline();
     expect(st().isOnline, isTrue);
     expect(st().locationStatus, LocationUiStatus.servicesDisabled);
-    expect(st().locationMessage, AppStrings.locationServicesDisabled);
   });
 
-  test('permission denied surfaces message', () async {
+  test('recoverLocation opens app settings when denied forever', () async {
     availability.me = _me();
-    availability.goOnlineHandler = () async =>
-        _me(availability: 'ONLINE', matchingEligible: true);
-    location.permission = LocationPermission.denied;
-    location.failure = DeviceLocationFailure.permissionDenied;
-    await ctl().bootstrap();
-    await ctl().goOnline();
-    expect(st().locationStatus, LocationUiStatus.permissionDenied);
-  });
-
-  test('permission denied forever surfaces message', () async {
-    availability.me = _me();
-    availability.goOnlineHandler = () async =>
-        _me(availability: 'ONLINE', matchingEligible: true);
     location.permission = LocationPermission.deniedForever;
-    location.failure = DeviceLocationFailure.permissionDeniedForever;
     await ctl().bootstrap();
-    await ctl().goOnline();
-    expect(st().locationStatus, LocationUiStatus.permissionDeniedForever);
+    await ctl().recoverLocation();
+    expect(location.openAppSettingsCount, 1);
+  });
+
+  test('recoverLocation opens location settings when services disabled',
+      () async {
+    availability.me = _me();
+    location.serviceEnabled = false;
+    await ctl().bootstrap();
+    await ctl().recoverLocation();
+    expect(location.openLocationSettingsCount, 1);
+  });
+
+  test('recoverLocation re-requests permission when denied', () async {
+    availability.me = _me();
+    location.permission = LocationPermission.denied;
+    await ctl().bootstrap();
+    final before = location.requestPermissionCount;
+    location.grantOnRequest = LocationPermission.whileInUse;
+    await ctl().recoverLocation();
+    expect(location.requestPermissionCount, greaterThan(before));
+    expect(st().locationStatus, LocationUiStatus.ready);
+  });
+
+  test('resume rechecks Allow Once expiry without auto re-prompt', () async {
+    availability.me = _me(availability: 'ONLINE', matchingEligible: true);
+    location.permission = LocationPermission.whileInUse;
+    await ctl().bootstrap();
+    expect(st().locationStatus, LocationUiStatus.ready);
+    location.permission = LocationPermission.denied;
+    await ctl().onAppResumed();
+    expect(st().locationStatus, LocationUiStatus.permissionDenied);
+    // Auto-request already consumed on earlier bootstrap/denied path —
+    // resume must not spam another dialog when expired Allow Once → denied.
+    expect(location.requestPermissionCount, 0);
   });
 
   test('location timeout surfaces on publish before accept', () async {

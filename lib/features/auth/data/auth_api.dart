@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
-import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/errors/app_exception.dart';
 import 'package:speedygo_driver_app/core/network/api_error_parser.dart';
 import 'package:speedygo_driver_app/features/auth/data/models.dart';
@@ -102,10 +103,26 @@ class FakeAuthClient implements AuthClient {
 
   AuthMe? meResult;
   TokenPair? verifyResult;
+  TokenPair rotated = const TokenPair(
+    accessToken: 'access-2',
+    refreshToken: 'refresh-2-token-value',
+    expiresIn: 900,
+    tokenType: 'Bearer',
+  );
   AppException? requestError;
   AppException? verifyError;
+  Object? refreshError;
+  Object? logoutError;
+  Object? meError;
+  Duration? meDelay;
+  Duration? refreshDelay;
+  Future<AuthMe>? meHold;
   int requestCount = 0;
   int verifyCount = 0;
+  int refreshCount = 0;
+  int logoutCount = 0;
+  int meCount = 0;
+  final presentedRefreshTokens = <String>[];
 
   @override
   Future<void> requestOtp(String identifier) async {
@@ -128,14 +145,31 @@ class FakeAuthClient implements AuthClient {
 
   @override
   Future<TokenPair> refresh(String refreshToken) async {
-    throw ApiException(AppStrings.sessionExpired, code: 'AUTH_INVALID_TOKEN');
+    presentedRefreshTokens.add(refreshToken);
+    refreshCount += 1;
+    if (refreshDelay != null) {
+      await Future<void>.delayed(refreshDelay!);
+    }
+    if (refreshError != null) throw refreshError!;
+    return rotated;
   }
 
   @override
-  Future<void> logout() async {}
+  Future<void> logout() async {
+    logoutCount += 1;
+    if (logoutError != null) throw logoutError!;
+  }
 
   @override
   Future<AuthMe> me() async {
+    meCount += 1;
+    if (meDelay != null) {
+      await Future<void>.delayed(meDelay!);
+    }
+    if (meHold != null) {
+      return meHold!;
+    }
+    if (meError != null) throw meError!;
     return meResult ??
         const AuthMe(
           accountId: 'acc',

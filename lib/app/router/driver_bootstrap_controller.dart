@@ -5,6 +5,7 @@ import 'package:speedygo_driver_app/core/errors/app_exception.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/application/session_controller.dart';
 import 'package:speedygo_driver_app/features/availability/application/availability_providers.dart';
+import 'package:speedygo_driver_app/features/availability/data/driver_me_models.dart';
 import 'package:speedygo_driver_app/features/delivery/application/current_delivery_controller.dart';
 
 final driverNavSnapshotProvider =
@@ -18,7 +19,9 @@ class DriverBootstrapController extends Notifier<DriverNavSnapshot> {
   DriverNavSnapshot build() {
     ref.listen<SessionState>(sessionControllerProvider, (previous, next) {
       if (next.status == SessionStatus.signedOut ||
-          next.status == SessionStatus.unknown) {
+          next.status == SessionStatus.unknown ||
+          next.status == SessionStatus.restoring ||
+          next.status == SessionStatus.restoreRetryable) {
         state = DriverNavSnapshot(sessionStatus: next.status);
       } else if (next.status == SessionStatus.needsDriverProfile) {
         state = DriverNavSnapshot(
@@ -36,8 +39,10 @@ class DriverBootstrapController extends Notifier<DriverNavSnapshot> {
     final session = ref.read(sessionControllerProvider);
     final accountStatus = session.me?.status;
 
-    if (session.status == SessionStatus.unknown) {
-      state = const DriverNavSnapshot(sessionStatus: SessionStatus.unknown);
+    if (session.status == SessionStatus.unknown ||
+        session.status == SessionStatus.restoring ||
+        session.status == SessionStatus.restoreRetryable) {
+      state = DriverNavSnapshot(sessionStatus: session.status);
       return AppRoutes.splash;
     }
     if (session.status == SessionStatus.signedOut) {
@@ -90,20 +95,39 @@ class DriverBootstrapController extends Notifier<DriverNavSnapshot> {
         driverMe: me,
         hasActiveDelivery: hasActive,
       );
-    } on AppException catch (_) {
-      await ref.read(sessionControllerProvider.notifier).logout();
+    } on AppException catch (error) {
+      if (error is ApiException && error.isAuthFailure) {
+        await ref.read(sessionControllerProvider.notifier).logout();
+        state = const DriverNavSnapshot(
+          sessionStatus: SessionStatus.signedOut,
+          resolved: true,
+        );
+        return AppRoutes.phone;
+      }
+      await ref
+          .read(sessionControllerProvider.notifier)
+          .markTransientRestoreFailure(
+            issue: error is ApiException && error.isPermissionDenied
+                ? RestoreIssue.permission
+                : RestoreIssue.offline,
+            message: error is NetworkException ||
+                    (error is ApiException && (error.statusCode ?? 0) >= 500) ||
+                    (error is ApiException && error.isPermissionDenied)
+                ? null
+                : error.message,
+          );
       state = const DriverNavSnapshot(
-        sessionStatus: SessionStatus.signedOut,
-        resolved: true,
+        sessionStatus: SessionStatus.restoreRetryable,
       );
-      return AppRoutes.phone;
+      return AppRoutes.splash;
     } catch (_) {
-      await ref.read(sessionControllerProvider.notifier).logout();
+      await ref
+          .read(sessionControllerProvider.notifier)
+          .markTransientRestoreFailure();
       state = const DriverNavSnapshot(
-        sessionStatus: SessionStatus.signedOut,
-        resolved: true,
+        sessionStatus: SessionStatus.restoreRetryable,
       );
-      return AppRoutes.phone;
+      return AppRoutes.splash;
     }
   }
 
@@ -120,5 +144,17 @@ class DriverBootstrapController extends Notifier<DriverNavSnapshot> {
 
   void clearActiveDelivery() {
     markActiveDelivery(false);
+  }
+
+  /// Soft-refresh `/driver/me` into the nav snapshot without a full bootstrap.
+  void applyDriverMe(DriverMe me) {
+    if (state.sessionStatus != SessionStatus.signedIn) return;
+    state = DriverNavSnapshot(
+      sessionStatus: state.sessionStatus,
+      accountStatus: state.accountStatus,
+      driverMe: me,
+      hasActiveDelivery: state.hasActiveDelivery,
+      resolved: true,
+    );
   }
 }

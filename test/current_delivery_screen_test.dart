@@ -56,6 +56,29 @@ void main() {
     expect(find.text(AppStrings.deliveryStatusFr('AT_PICKUP')), findsOneWidget);
     expect(find.byKey(const Key('pickup_code_field')), findsOneWidget);
     expect(find.byKey(const Key('confirm_pickup_button')), findsOneWidget);
+    expect(find.byKey(const Key('delivery_sheet')), findsOneWidget);
+    expect(find.byKey(const Key('delivery_sheet_handle')), findsOneWidget);
+    expect(find.byKey(const Key('delivery_sticky_action')), findsOneWidget);
+    expect(find.byKey(const Key('delivery_copy_order')), findsOneWidget);
+  });
+
+  testWidgets('sheet drag expands details above pinned action', (tester) async {
+    final fake = FakeDeliveryClient(current: atPickup());
+    await tester.pumpWidget(_harness(fake));
+    await tester.pumpAndSettle();
+    final handle = find.byKey(const Key('delivery_sheet_handle'));
+    expect(handle, findsOneWidget);
+    final start = tester.getCenter(handle);
+    await tester.drag(handle, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    // Shared scroll controller can bring pickup field into view; CTA stays pinned.
+    await tester.ensureVisible(find.byKey(const Key('pickup_code_field')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('pickup_code_field')), findsOneWidget);
+    expect(find.byKey(const Key('confirm_pickup_button')), findsOneWidget);
+    expect(find.byKey(const Key('delivery_sticky_action')), findsOneWidget);
+    final handleAfter = tester.getCenter(handle);
+    expect(handleAfter.dy, lessThan(start.dy));
   });
 
   testWidgets('coded confirm success transitions UI', (tester) async {

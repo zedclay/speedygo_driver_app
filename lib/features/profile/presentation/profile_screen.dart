@@ -3,14 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
-import 'package:speedygo_driver_app/core/design_system/confirmation_sheet.dart';
 import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
 import 'package:speedygo_driver_app/core/design_system/error_retry_view.dart';
 import 'package:speedygo_driver_app/core/design_system/loading_view.dart';
-import 'package:speedygo_driver_app/core/design_system/operational_card.dart';
 import 'package:speedygo_driver_app/core/design_system/status_badge.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
-import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/onboarding/application/onboarding_controller.dart';
 import 'package:speedygo_driver_app/features/onboarding/application/onboarding_flow.dart';
 
@@ -21,19 +18,9 @@ StatusTone verificationTone(String? status) => switch (status) {
   _ => StatusTone.neutral,
 };
 
-/// Confirms, then logs out. Logout lives on Profile (not on Home).
+/// Opens the full-screen logout confirmation (Modern White déconnexion).
 Future<void> confirmLogout(BuildContext context, WidgetRef ref) async {
-  final confirmed = await showConfirmationSheet(
-    context,
-    title: AppStrings.logoutConfirmTitle,
-    body: AppStrings.logoutConfirmBody,
-    confirmLabel: AppStrings.logoutConfirmAction,
-    destructive: true,
-    confirmKey: const Key('logout_confirm'),
-  );
-  if (confirmed && context.mounted) {
-    await ref.read(sessionControllerProvider.notifier).logout();
-  }
+  await context.push(AppRoutes.logout);
 }
 
 /// Profile tab (shell branch 3), built from `GET /driver/me`.
@@ -53,24 +40,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
   }
 
-  Widget _tile(
-    IconData icon,
-    String label,
-    String route, {
-    Key? key,
-    String? subtitle,
-  }) {
-    return ListTile(
-      key: key,
-      minTileHeight: DriverTokens.touchTarget,
-      leading: Icon(icon, color: DriverTokens.primary),
-      title: Text(label),
-      subtitle: subtitle == null ? null : Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => context.push(route),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.watch(localeControllerProvider);
@@ -78,14 +47,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final me = state.me;
     final theme = Theme.of(context);
     final status = me?.verificationStatus;
+    final vehicle = me?.activeVehicle;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: DriverTokens.surface,
       body: RefreshIndicator(
         onRefresh: ref.read(onboardingControllerProvider.notifier).load,
         child: ListView(
           padding: const EdgeInsets.all(DriverTokens.edgeMargin),
           children: [
+            Text(
+              AppStrings.profileTitle,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: DriverTokens.navy,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              AppStrings.profileSubtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: DriverTokens.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: DriverTokens.spaceLg),
             if (state.loadStatus == OnboardingLoadStatus.loading && me == null)
               LoadingView(message: AppStrings.loading),
             if (state.loadStatus == OnboardingLoadStatus.error && me == null)
@@ -95,16 +80,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 retryKey: const Key('profile_retry'),
               ),
             if (me != null) ...[
-              OperationalCard(
+              Container(
                 key: const Key('profile_header'),
+                padding: const EdgeInsets.all(DriverTokens.spaceLg),
+                decoration: BoxDecoration(
+                  color: DriverTokens.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(DriverTokens.radiusLg),
+                  border: Border.all(color: DriverTokens.outlineVariant),
+                ),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 28,
+                    CircleAvatar(
+                      radius: 32,
                       backgroundColor: DriverTokens.primaryContainer,
-                      child: Icon(Icons.person, color: DriverTokens.primary),
+                      child: Text(
+                        _initials(me.profileFullName),
+                        style: const TextStyle(
+                          color: DriverTokens.primary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 22,
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: DriverTokens.spaceLg),
+                    const SizedBox(width: DriverTokens.spaceMd),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,14 +110,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           Text(
                             me.profileFullName ?? AppStrings.profileNoName,
                             key: const Key('profile_name'),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: DriverTokens.navy,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: DriverTokens.spaceSm),
+                          const SizedBox(height: DriverTokens.spaceXs),
                           StatusBadge(
-                            label: AppStrings.verificationStatusLabel(status),
+                            label: status == 'APPROVED'
+                                ? AppStrings.accountVerified
+                                : AppStrings.verificationStatusLabel(status),
                             tone: verificationTone(status),
+                            icon: status == 'APPROVED'
+                                ? Icons.verified
+                                : null,
                           ),
                         ],
                       ),
@@ -139,57 +143,146 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
               ],
             ],
-            const SizedBox(height: DriverTokens.spaceMd),
-            OperationalCard(
-              padding: EdgeInsets.zero,
+            const SizedBox(height: DriverTokens.spaceXl),
+            Text(
+              AppStrings.profileSectionAccount,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: DriverTokens.navy,
+              ),
+            ),
+            const SizedBox(height: DriverTokens.spaceSm),
+            Material(
+              color: DriverTokens.card,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(DriverTokens.radiusLg),
+                side: const BorderSide(color: DriverTokens.outlineVariant),
+              ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
-                  _tile(
-                    Icons.two_wheeler,
-                    AppStrings.profileMenuVehicle,
-                    AppRoutes.vehicle,
+                  _PrefTile(
                     key: const Key('profile_vehicle'),
+                    icon: Icons.directions_car_outlined,
+                    title: AppStrings.profileMenuVehicle,
+                    subtitle: vehicle?.model ?? AppStrings.vehicleNone,
+                    onTap: () => context.push(AppRoutes.vehicle),
                   ),
-                  _tile(
-                    Icons.description_outlined,
-                    AppStrings.profileMenuDocuments,
-                    AppRoutes.documents,
+                  const Divider(height: 1, color: DriverTokens.outlineVariant),
+                  _PrefTile(
                     key: const Key('profile_documents'),
+                    icon: Icons.description_outlined,
+                    title: AppStrings.profileMenuDocuments,
+                    subtitle: AppStrings.documentsTitle,
+                    onTap: () => context.push(AppRoutes.documents),
                   ),
-                  _tile(
-                    Icons.star_outline,
-                    AppStrings.profileMenuRatings,
-                    AppRoutes.ratings,
+                  const Divider(height: 1, color: DriverTokens.outlineVariant),
+                  _PrefTile(
                     key: const Key('profile_ratings'),
-                  ),
-                  _tile(
-                    Icons.support_agent,
-                    AppStrings.profileMenuSupport,
-                    AppRoutes.support,
-                    key: const Key('profile_support'),
-                  ),
-                  _tile(
-                    Icons.settings_outlined,
-                    AppStrings.profileMenuSettings,
-                    AppRoutes.settings,
-                    key: const Key('profile_settings'),
+                    icon: Icons.star_outline,
+                    title: AppStrings.profileMenuRatings,
+                    onTap: () => context.push(AppRoutes.ratings),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: DriverTokens.spaceLg),
-            SizedBox(
-              height: DriverTokens.actionHeight,
-              child: OutlinedButton.icon(
+            Material(
+              color: DriverTokens.card,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(DriverTokens.radiusLg),
+                side: const BorderSide(color: DriverTokens.outlineVariant),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  _PrefTile(
+                    key: const Key('profile_settings'),
+                    icon: Icons.settings_outlined,
+                    title: AppStrings.profileMenuSettings,
+                    onTap: () => context.push(AppRoutes.settings),
+                  ),
+                  const Divider(height: 1, color: DriverTokens.outlineVariant),
+                  _PrefTile(
+                    key: const Key('profile_support'),
+                    icon: Icons.support_agent,
+                    title: AppStrings.profileMenuSupport,
+                    onTap: () => context.push(AppRoutes.support),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: DriverTokens.spaceLg),
+            Material(
+              color: DriverTokens.card,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(DriverTokens.radiusLg),
+                side: const BorderSide(color: DriverTokens.outlineVariant),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ListTile(
                 key: const Key('logout'),
-                onPressed: () => confirmLogout(context, ref),
-                icon: const Icon(Icons.logout),
-                label: Text(AppStrings.logout),
+                minTileHeight: DriverTokens.touchTarget + 8,
+                leading: const Icon(Icons.logout, color: DriverTokens.danger),
+                title: Text(
+                  AppStrings.logout,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: DriverTokens.danger,
+                  ),
+                ),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  color: DriverTokens.danger,
+                ),
+                onTap: () => confirmLogout(context, ref),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  String _initials(String? name) {
+    final parts = (name ?? '').trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) {
+      return parts.first.substring(0, 1).toUpperCase();
+    }
+    return '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}'
+        .toUpperCase();
+  }
+}
+
+class _PrefTile extends StatelessWidget {
+  const _PrefTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      minTileHeight: DriverTokens.touchTarget + 8,
+      leading: Icon(icon, color: DriverTokens.primary),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle!,
+              style: const TextStyle(color: DriverTokens.onSurfaceVariant),
+            ),
+      trailing: const Icon(Icons.chevron_right, color: DriverTokens.outline),
+      onTap: onTap,
     );
   }
 }

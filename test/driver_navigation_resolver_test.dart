@@ -76,6 +76,23 @@ void main() {
       );
     });
 
+    test('needs profile may open logout', () {
+      expect(
+        driverRedirect(
+          status: SessionStatus.needsDriverProfile,
+          loc: AppRoutes.logout,
+        ),
+        isNull,
+      );
+      expect(
+        driverRedirect(
+          status: SessionStatus.needsDriverProfile,
+          loc: AppRoutes.home,
+        ),
+        AppRoutes.onboardingProfile,
+      );
+    });
+
     test('approved without delivery → home', () {
       expect(
         resolveColdStartDestination(
@@ -149,6 +166,30 @@ void main() {
       expect(
         driverRedirect(status: SessionStatus.unknown, loc: AppRoutes.home),
         AppRoutes.splash,
+      );
+    });
+
+    test('restore retryable stays on splash and cannot open home', () {
+      expect(
+        driverRedirect(
+          status: SessionStatus.restoreRetryable,
+          loc: AppRoutes.home,
+        ),
+        AppRoutes.splash,
+      );
+      expect(
+        driverRedirect(
+          status: SessionStatus.restoreRetryable,
+          loc: AppRoutes.splash,
+        ),
+        isNull,
+      );
+      expect(
+        driverRedirect(
+          status: SessionStatus.restoreRetryable,
+          loc: AppRoutes.languageSettingsAuth,
+        ),
+        isNull,
       );
     });
 

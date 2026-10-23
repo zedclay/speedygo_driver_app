@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
+import 'package:speedygo_driver_app/core/money/dzd_amount.dart';
 import 'package:speedygo_driver_app/core/network/api_error_parser.dart';
 import 'package:speedygo_driver_app/features/delivery/data/delivery_models.dart';
 
@@ -61,7 +62,9 @@ class DeliveryApi implements DeliveryClient {
     try {
       await _dio.post<Map<String, dynamic>>(
         ApiEndpoints.driverCollectCodPath,
-        data: {'collectedAmountMinor': collectedAmountMinor},
+        data: {
+          'collectedAmount': formatCentimesAsDzdV2(collectedAmountMinor),
+        },
       );
     } catch (error) {
       throw mapDioError(error);
@@ -85,6 +88,7 @@ class FakeDeliveryClient implements DeliveryClient {
     this.confirmHandler,
     this.actionHandler,
     this.collectCodHandler,
+    this.getCurrentError,
   });
 
   DriverCurrentDelivery? current;
@@ -92,6 +96,9 @@ class FakeDeliveryClient implements DeliveryClient {
   confirmHandler;
   Future<DriverCurrentDelivery> Function(String path)? actionHandler;
   Future<void> Function(int amountMinor)? collectCodHandler;
+
+  /// When set, [getCurrent] throws this instead of returning [current].
+  Object? getCurrentError;
 
   int getCurrentCount = 0;
   int confirmCount = 0;
@@ -104,6 +111,11 @@ class FakeDeliveryClient implements DeliveryClient {
   @override
   Future<DriverCurrentDelivery?> getCurrent() async {
     getCurrentCount += 1;
+    final err = getCurrentError;
+    if (err != null) {
+      if (err is Exception) throw err;
+      throw Exception(err.toString());
+    }
     return current;
   }
 

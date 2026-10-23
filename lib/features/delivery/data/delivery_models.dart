@@ -34,6 +34,7 @@ class DriverCurrentDelivery {
     required this.pickedUpAt,
     required this.arrivedCustomerAt,
     required this.deliveredAt,
+    this.expectedCodAmountMinor,
   });
 
   final String assignmentId;
@@ -48,6 +49,10 @@ class DriverCurrentDelivery {
   final String? pickedUpAt;
   final String? arrivedCustomerAt;
   final String? deliveredAt;
+
+  /// Authoritative COD due amount as integer minor units (decimal string).
+  /// Null when payment is not COD or the field is omitted.
+  final String? expectedCodAmountMinor;
 
   bool get canStartToPickup =>
       allowedActions.contains(DeliveryActions.startToPickup);
@@ -104,6 +109,7 @@ class DriverCurrentDelivery {
       pickedUpAt: json['pickedUpAt']?.toString(),
       arrivedCustomerAt: json['arrivedCustomerAt']?.toString(),
       deliveredAt: json['deliveredAt']?.toString(),
+      expectedCodAmountMinor: json['expectedCodAmountMinor']?.toString(),
     );
   }
 }

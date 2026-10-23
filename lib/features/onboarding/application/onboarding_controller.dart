@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:speedygo_driver_app/app/router/driver_bootstrap_controller.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/errors/app_exception.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
@@ -60,7 +61,7 @@ class OnboardingController extends Notifier<OnboardingState> {
   @override
   OnboardingState build() {
     ref.listen<SessionState>(sessionControllerProvider, (previous, next) {
-      if (next.status == SessionStatus.signedOut) {
+      if (!next.canRunOnboarding) {
         state = const OnboardingState();
       }
     });
@@ -70,14 +71,24 @@ class OnboardingController extends Notifier<OnboardingState> {
   DriverProfileClient get _api => ref.read(driverProfileClientProvider);
 
   Future<void> load() async {
+    if (state.loadStatus == OnboardingLoadStatus.loading || state.busy) {
+      return;
+    }
     state = state.copyWith(
       loadStatus: OnboardingLoadStatus.loading,
       clearMessages: true,
     );
     try {
       final me = await _api.getMe();
+      if (!ref.read(sessionControllerProvider).canRunOnboarding) {
+        return;
+      }
       state = state.copyWith(loadStatus: OnboardingLoadStatus.ready, me: me);
+      ref.read(driverNavSnapshotProvider.notifier).applyDriverMe(me);
     } on AppException catch (error) {
+      if (!ref.read(sessionControllerProvider).canRunOnboarding) {
+        return;
+      }
       state = state.copyWith(
         loadStatus: OnboardingLoadStatus.error,
         errorMessage: error.message,

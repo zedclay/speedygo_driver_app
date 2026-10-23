@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
 import 'package:speedygo_driver_app/core/design_system/info_banner.dart';
@@ -39,7 +41,17 @@ class OnboardingScaffold extends ConsumerWidget {
     final state = ref.watch(onboardingControllerProvider);
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     return Scaffold(
-      appBar: AppBar(title: Text(title), automaticallyImplyLeading: showBack),
+      appBar: AppBar(
+        title: Text(title),
+        automaticallyImplyLeading: showBack,
+        actions: [
+          TextButton(
+            key: const Key('onboarding_logout'),
+            onPressed: () => GoRouter.of(context).go(AppRoutes.logout),
+            child: Text(AppStrings.logout),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(

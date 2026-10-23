@@ -73,6 +73,8 @@ String resolveColdStartDestination({
 }) {
   switch (sessionStatus) {
     case SessionStatus.unknown:
+    case SessionStatus.restoring:
+    case SessionStatus.restoreRetryable:
       return AppRoutes.splash;
     case SessionStatus.signedOut:
       return AppRoutes.phone;
@@ -121,13 +123,15 @@ bool _isAuthRoute(String loc) =>
 
 bool _isWelcomeIntroRoute(String loc) => loc == AppRoutes.welcomeIntro;
 
-bool _isLanguageRoute(String loc) => loc == AppRoutes.languageSettings;
+bool _isLanguageRoute(String loc) =>
+    loc == AppRoutes.languageSettings || loc == AppRoutes.languageSettingsAuth;
 
 bool _isOnboardingRoute(String loc) => loc.startsWith('/onboarding');
 
 bool _isPendingAllowed(String loc) =>
     loc == AppRoutes.onboardingPending ||
     loc == AppRoutes.onboardingApproved ||
+    loc == AppRoutes.onboardingApprovedInfo ||
     _isLanguageRoute(loc) ||
     loc == AppRoutes.support ||
     loc.startsWith('${AppRoutes.supportDetail}/');
@@ -156,11 +160,13 @@ String? driverRedirect({
   DriverNavSnapshot? snapshot,
   bool introCompleted = true,
 }) {
-  if (status == SessionStatus.unknown) {
-    if (loc != AppRoutes.splash && !_isLanguageRoute(loc)) {
-      return AppRoutes.splash;
+  if (status == SessionStatus.unknown ||
+      status == SessionStatus.restoring ||
+      status == SessionStatus.restoreRetryable) {
+    if (loc == AppRoutes.splash || _isLanguageRoute(loc)) {
+      return null;
     }
-    return null;
+    return AppRoutes.splash;
   }
 
   // Splash owns brand hold + outbound `context.go`. Never yank it away via
@@ -194,7 +200,11 @@ String? driverRedirect({
   }
 
   if (status == SessionStatus.needsDriverProfile) {
-    if (_isOnboardingRoute(loc) || _isLanguageRoute(loc)) return null;
+    if (_isOnboardingRoute(loc) ||
+        _isLanguageRoute(loc) ||
+        loc == AppRoutes.logout) {
+      return null;
+    }
     return AppRoutes.onboardingProfile;
   }
 
@@ -251,9 +261,18 @@ String? driverRedirect({
           ? AppRoutes.currentDelivery
           : AppRoutes.home;
     }
-    // One-shot approved celebration is allowed; pending is not for approved.
+    // Pending is never valid for approved drivers.
     if (loc == AppRoutes.onboardingPending) {
-      return AppRoutes.home;
+      return snap.hasActiveDelivery
+          ? AppRoutes.currentDelivery
+          : AppRoutes.home;
+    }
+    // Just-approved success + read-only info are allowed without active delivery.
+    // Returning cold-start still lands on home/currentDelivery (see resolveColdStart).
+    if (loc == AppRoutes.onboardingApproved ||
+        loc == AppRoutes.onboardingApprovedInfo) {
+      if (snap.hasActiveDelivery) return AppRoutes.currentDelivery;
+      return null;
     }
     return null;
   }

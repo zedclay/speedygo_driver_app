@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/errors/app_exception.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/application/session_controller.dart';
 import 'package:speedygo_driver_app/features/availability/application/availability_providers.dart';
+import 'package:speedygo_driver_app/features/availability/application/driver_location_gate.dart';
 import 'package:speedygo_driver_app/features/availability/application/offer_countdown.dart';
 import 'package:speedygo_driver_app/features/availability/data/availability_api.dart';
 import 'package:speedygo_driver_app/features/availability/data/device_location.dart';
@@ -161,7 +161,7 @@ class DriverHomeController extends Notifier<DriverHomeState> {
   DriverHomeState build() {
     _disposed = false;
     ref.listen<SessionState>(sessionControllerProvider, (previous, next) {
-      if (next.status == SessionStatus.signedOut) {
+      if (!next.canRunDriverOps) {
         _stopBackgroundWork();
         state = const DriverHomeState();
       }
@@ -175,20 +175,80 @@ class DriverHomeController extends Notifier<DriverHomeState> {
 
   AvailabilityClient get _api => ref.read(availabilityClientProvider);
   DeviceLocationSource get _location => ref.read(deviceLocationSourceProvider);
+  DriverLocationGate get _locationGate => ref.read(driverLocationGateProvider);
   DeliveryClient get _delivery => ref.read(deliveryClientProvider);
 
   Future<void> bootstrap() async {
     await refresh(full: true);
+    // First foreground Home ready: request When In Use if still undetermined.
+    // Does not wait for the availability slider and never publishes while offline.
+    if (!_disposed && state.me != null) {
+      await _primeLocationAccess(allowAutoRequest: true);
+    }
   }
 
   Future<void> onAppResumed() async {
     if (state.me == null) {
       await refresh(full: true);
+      if (!_disposed && state.me != null) {
+        await _primeLocationAccess(allowAutoRequest: true);
+      }
       return;
     }
     await refresh(full: false);
+    // Recheck authorization (incl. expired “Allow Once”) without spamming prompts.
+    await _primeLocationAccess(allowAutoRequest: false);
+    if (state.isOnline || state.hasActiveDelivery) {
+      await _publishLocationOnce();
+    }
     _syncBackgroundWork();
     _bumpCountdown();
+  }
+
+  /// Recover from a location denial / services-off / publish failure.
+  /// Uses the existing Geolocator settings APIs — never fabricates coordinates.
+  Future<void> recoverLocation() async {
+    switch (state.locationStatus) {
+      case LocationUiStatus.servicesDisabled:
+        await _location.openLocationSettings();
+        return;
+      case LocationUiStatus.permissionDeniedForever:
+        await _location.openAppSettings();
+        return;
+      case LocationUiStatus.permissionDenied:
+      case LocationUiStatus.timeout:
+      case LocationUiStatus.unavailable:
+      case LocationUiStatus.error:
+      case LocationUiStatus.unknown:
+      case LocationUiStatus.ready:
+      case LocationUiStatus.publishing:
+        break;
+    }
+    try {
+      await _ensureLocationReady(requestIfNeeded: true, forceRequest: true);
+      if (state.isOnline || state.hasActiveDelivery) {
+        await _publishLocationOnce();
+      }
+    } on DeviceLocationException catch (error) {
+      if (_disposed) return;
+      state = state.copyWith(
+        locationStatus: _mapLocationFailure(error.failure),
+        locationMessage: AppStrings.locationErrorFor(error.failure.name),
+      );
+    }
+  }
+
+  String locationRecoveryActionLabel() {
+    switch (state.locationStatus) {
+      case LocationUiStatus.servicesDisabled:
+        return AppStrings.locationOpenLocationSettingsAction;
+      case LocationUiStatus.permissionDeniedForever:
+        return AppStrings.locationOpenSettingsAction;
+      case LocationUiStatus.permissionDenied:
+        return AppStrings.locationEnableAction;
+      default:
+        return AppStrings.locationRetryAction;
+    }
   }
 
   Future<void> refresh({bool full = true}) async {
@@ -199,35 +259,11 @@ class DriverHomeController extends Notifier<DriverHomeState> {
         acceptedNavigationPending: false,
       );
     }
+    // getMe is authoritative for Home chrome/availability. Current delivery and
+    // offers are best-effort so a single downstream failure cannot blank Home.
+    DriverMe me;
     try {
-      final me = await _api.getMe();
-      final delivery = await _delivery.getCurrent();
-      final hasDelivery = delivery != null;
-      AssignmentOffer? offer = state.offer;
-      var skew = state.serverSkewMs;
-      if (me.availability?.isOnline == true && !hasDelivery) {
-        final result = await _api.getCurrentOffer();
-        offer = result.offer;
-        skew = estimateServerSkewMs(
-          localSampleUtc: DateTime.now().toUtc(),
-          serverSampleUtc: result.serverTime,
-        );
-      } else {
-        offer = null;
-      }
-      if (_disposed) return;
-      state = state.copyWith(
-        loadStatus: DriverHomeLoadStatus.ready,
-        me: me,
-        offer: offer,
-        clearOffer: offer == null,
-        hasActiveDelivery: hasDelivery,
-        serverSkewMs: skew,
-        offerExpiredLocally: false,
-        clearError: true,
-      );
-      _syncBackgroundWork();
-      _bumpCountdown();
+      me = await _api.getMe();
     } on AppException catch (error) {
       if (_disposed) return;
       state = state.copyWith(
@@ -236,7 +272,60 @@ class DriverHomeController extends Notifier<DriverHomeState> {
         errorCode: error.code,
       );
       _stopBackgroundWork();
+      return;
     }
+    if (_disposed) return;
+    state = state.copyWith(
+      loadStatus: DriverHomeLoadStatus.ready,
+      me: me,
+      clearError: true,
+    );
+
+    String? secondaryError;
+    String? secondaryCode;
+    var hasDelivery = state.hasActiveDelivery;
+    try {
+      final delivery = await _delivery.getCurrent();
+      hasDelivery = delivery != null;
+    } on AppException catch (error) {
+      secondaryError = error.message;
+      secondaryCode = error.code;
+    }
+
+    AssignmentOffer? offer;
+    var skew = state.serverSkewMs;
+    if (me.availability?.isOnline == true && !hasDelivery) {
+      try {
+        final result = await _api.getCurrentOffer();
+        offer = result.offer;
+        skew = estimateServerSkewMs(
+          localSampleUtc: DateTime.now().toUtc(),
+          serverSampleUtc: result.serverTime,
+        );
+      } on AppException catch (error) {
+        secondaryError ??= error.message;
+        secondaryCode ??= error.code;
+        offer = null;
+      }
+    } else {
+      offer = null;
+    }
+
+    if (_disposed) return;
+    state = state.copyWith(
+      loadStatus: DriverHomeLoadStatus.ready,
+      me: me,
+      offer: offer,
+      clearOffer: offer == null,
+      hasActiveDelivery: hasDelivery,
+      serverSkewMs: skew,
+      offerExpiredLocally: false,
+      errorMessage: secondaryError,
+      errorCode: secondaryCode,
+      clearError: secondaryError == null,
+    );
+    _syncBackgroundWork();
+    _bumpCountdown();
   }
 
   Future<void> goOnline() async {
@@ -249,6 +338,7 @@ class DriverHomeController extends Notifier<DriverHomeState> {
       if (_disposed) return;
       state = state.copyWith(me: me, availabilityBusy: false, clearError: true);
       // Matching/accept require fresh location (<=45s); best-effort after ONLINE.
+      // Availability stays ONLINE even when location is not ready.
       try {
         await _ensureLocationReady(requestIfNeeded: true);
         await _publishLocationOnce();
@@ -500,34 +590,92 @@ class DriverHomeController extends Notifier<DriverHomeState> {
     }
   }
 
-  Future<void> _ensureLocationReady({required bool requestIfNeeded}) async {
-    final enabled = await _location.isLocationServiceEnabled();
-    if (!enabled) {
-      throw const DeviceLocationException(
-        DeviceLocationFailure.servicesDisabled,
+  /// Primes OS location access without publishing and without changing
+  /// confirmed availability. Safe to call on cold start and resume.
+  Future<void> _primeLocationAccess({required bool allowAutoRequest}) async {
+    if (_disposed) return;
+    try {
+      final outcome = await _locationGate.ensureAccess(
+        allowAutoRequest: allowAutoRequest,
+      );
+      if (_disposed) return;
+      _applyAccessOutcome(outcome);
+    } on DeviceLocationException catch (error) {
+      if (_disposed) return;
+      state = state.copyWith(
+        locationStatus: _mapLocationFailure(error.failure),
+        locationMessage: AppStrings.locationErrorFor(error.failure.name),
       );
     }
-    var permission = await _location.checkPermission();
-    if (permission == LocationPermission.denied && requestIfNeeded) {
-      permission = await _location.requestPermission();
+  }
+
+  void _applyAccessOutcome(LocationAccessOutcome outcome) {
+    switch (outcome) {
+      case LocationAccessOutcome.ready:
+        state = state.copyWith(
+          locationStatus: LocationUiStatus.ready,
+          clearLocationMessage: true,
+        );
+      case LocationAccessOutcome.servicesDisabled:
+        state = state.copyWith(
+          locationStatus: LocationUiStatus.servicesDisabled,
+          locationMessage: AppStrings.locationServicesDisabled,
+        );
+      case LocationAccessOutcome.permissionDenied:
+        state = state.copyWith(
+          locationStatus: LocationUiStatus.permissionDenied,
+          locationMessage: AppStrings.locationPermissionDenied,
+        );
+      case LocationAccessOutcome.permissionDeniedForever:
+        state = state.copyWith(
+          locationStatus: LocationUiStatus.permissionDeniedForever,
+          locationMessage: AppStrings.locationPermissionDeniedForever,
+        );
+      case LocationAccessOutcome.unableToDetermine:
+        state = state.copyWith(
+          locationStatus: LocationUiStatus.unavailable,
+          locationMessage: AppStrings.locationUnavailable,
+        );
     }
-    if (permission == LocationPermission.denied) {
-      throw const DeviceLocationException(
-        DeviceLocationFailure.permissionDenied,
-      );
-    }
-    if (permission == LocationPermission.deniedForever) {
-      throw const DeviceLocationException(
-        DeviceLocationFailure.permissionDeniedForever,
-      );
-    }
-    state = state.copyWith(
-      locationStatus: LocationUiStatus.ready,
-      clearLocationMessage: true,
+  }
+
+  Future<void> _ensureLocationReady({
+    required bool requestIfNeeded,
+    bool forceRequest = false,
+  }) async {
+    final outcome = await _locationGate.ensureAccess(
+      allowAutoRequest: requestIfNeeded,
+      forceRequest: forceRequest,
     );
+    if (_disposed) {
+      throw const DeviceLocationException(DeviceLocationFailure.unavailable);
+    }
+    switch (outcome) {
+      case LocationAccessOutcome.ready:
+        state = state.copyWith(
+          locationStatus: LocationUiStatus.ready,
+          clearLocationMessage: true,
+        );
+        return;
+      case LocationAccessOutcome.servicesDisabled:
+        throw const DeviceLocationException(
+          DeviceLocationFailure.servicesDisabled,
+        );
+      case LocationAccessOutcome.permissionDeniedForever:
+        throw const DeviceLocationException(
+          DeviceLocationFailure.permissionDeniedForever,
+        );
+      case LocationAccessOutcome.permissionDenied:
+        throw const DeviceLocationException(
+          DeviceLocationFailure.permissionDenied,
+        );
+      case LocationAccessOutcome.unableToDetermine:
+        throw const DeviceLocationException(DeviceLocationFailure.unavailable);
+    }
   }
 
   Future<void> _publishLocationOnce() async {
+    // Never publish unauthenticated / offline-idle coordinates.
     if (!state.isOnline && !state.hasActiveDelivery) return;
     try {
       await _ensureLocationReady(requestIfNeeded: false);
@@ -555,7 +703,10 @@ class DriverHomeController extends Notifier<DriverHomeState> {
       if (_disposed) return;
       state = state.copyWith(
         locationStatus: LocationUiStatus.error,
-        locationMessage: error.message,
+        locationMessage: AppStrings.locationApiErrorFor(
+          error.code,
+          fallback: error.message,
+        ),
       );
     }
   }

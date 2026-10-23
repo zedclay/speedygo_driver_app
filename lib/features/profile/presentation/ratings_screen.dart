@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
+import 'package:speedygo_driver_app/core/design_system/driver_nested_app_bar.dart';
 import 'package:speedygo_driver_app/core/design_system/driver_tokens.dart';
 import 'package:speedygo_driver_app/core/design_system/error_retry_view.dart';
 import 'package:speedygo_driver_app/core/design_system/loading_view.dart';
@@ -18,7 +19,7 @@ class RatingsScreen extends ConsumerWidget {
     final summary = ref.watch(ratingsSummaryProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.ratingsTitle)),
+      appBar: DriverNestedAppBar(title: AppStrings.ratingsTitle),
       body: summary.when(
         loading: () => LoadingView(message: AppStrings.loading),
         error: (error, _) => ErrorRetryView(
@@ -32,34 +33,60 @@ class RatingsScreen extends ConsumerWidget {
           children: [
             OperationalCard(
               key: const Key('ratings_card'),
+              padding: const EdgeInsets.symmetric(
+                vertical: DriverTokens.spaceXl,
+                horizontal: DriverTokens.spaceLg,
+              ),
               child: data.count == 0 || data.average == null
-                  ? Text(AppStrings.ratingsNone)
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ? Column(
                       children: [
-                        Text(
-                          AppStrings.ratingsAverage,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        Directionality(
-                          textDirection: TextDirection.ltr,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.star, color: Colors.amber),
-                              const SizedBox(width: 6),
-                              Text(
-                                data.average!.toStringAsFixed(2),
-                                key: const Key('ratings_average'),
-                                style: theme.textTheme.headlineMedium,
-                              ),
-                            ],
-                          ),
+                        const Icon(
+                          Icons.star_outline,
+                          size: 40,
+                          color: DriverTokens.outline,
                         ),
                         const SizedBox(height: DriverTokens.spaceSm),
                         Text(
+                          AppStrings.ratingsNone,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: DriverTokens.textSecondary,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Text(
+                            data.average!.toStringAsFixed(1),
+                            key: const Key('ratings_average'),
+                            style: theme.textTheme.displaySmall?.copyWith(
+                              color: DriverTokens.primary,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: DriverTokens.spaceXs),
+                        Text(
+                          AppStrings.ratingsAverage,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: DriverTokens.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: DriverTokens.spaceSm),
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: _Stars(value: data.average!),
+                        ),
+                        const SizedBox(height: DriverTokens.spaceMd),
+                        Text(
                           '${AppStrings.ratingsCount}: ${data.count}',
                           key: const Key('ratings_count'),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -67,6 +94,30 @@ class RatingsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Read-only star row for the server-provided average (display only).
+class _Stars extends StatelessWidget {
+  const _Stars({required this.value});
+
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 1; i <= 5; i++)
+          Icon(
+            value >= i
+                ? Icons.star
+                : (value >= i - 0.5 ? Icons.star_half : Icons.star_border),
+            color: DriverTokens.tertiaryContainer,
+            size: 28,
+          ),
+      ],
     );
   }
 }

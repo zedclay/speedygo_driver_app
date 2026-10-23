@@ -155,28 +155,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeLoading => 'جاري تحميل حالة التوفر…';
 
   @override
-  String get availabilityOnline => 'متصل';
+  String get availabilityOnline => 'متاح للطلبات';
 
   @override
-  String get availabilityOffline => 'غير متصل';
+  String get availabilityOffline => 'غير متاح للطلبات';
 
   @override
   String get availabilitySuspended => 'موقوف';
 
   @override
-  String get availabilityOfflineAfterCurrent => 'غير متصل بعد التوصيل الحالي';
+  String get availabilityOfflineAfterCurrent => 'غير متاح بعد التوصيل الحالي';
 
   @override
-  String get goOnline => 'الاتصال';
+  String get goOnline => 'بدء استقبال الطلبات';
 
   @override
-  String get goOffline => 'قطع الاتصال';
+  String get goOffline => 'إيقاف استقبال الطلبات';
 
   @override
-  String get goingOnline => 'جاري الاتصال…';
+  String get goingOnline => 'جاري بدء استقبال الطلبات…';
 
   @override
-  String get goingOffline => 'جاري قطع الاتصال…';
+  String get goingOffline => 'جاري إيقاف استقبال الطلبات…';
 
   @override
   String get waitingForOffer => 'في انتظار عرض توصيل…';

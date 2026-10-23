@@ -40,7 +40,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
     final cod = state.cod;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: DriverTokens.surface,
       body: RefreshIndicator(
         onRefresh: controller.load,
         child: ListView(
@@ -49,7 +49,15 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
             Text(
               AppStrings.earningsTitle,
               style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
+                color: DriverTokens.navy,
+              ),
+            ),
+            const SizedBox(height: DriverTokens.spaceXs),
+            Text(
+              AppStrings.earningsOperationalTotals,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: DriverTokens.textSecondary,
               ),
             ),
             const SizedBox(height: DriverTokens.spaceMd),
@@ -199,11 +207,17 @@ class _CodSectionState extends State<_CodSection> {
     final cod = state.cod!;
     return OperationalCard(
       key: const Key('cod_summary_card'),
-      title: AppStrings.codSectionTitle,
+      title: AppStrings.earningsCodReconciliationTitle,
       leading: const Icon(Icons.savings_outlined, color: DriverTokens.primary),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text(
+            AppStrings.codSectionTitle,
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: DriverTokens.spaceSm),
           AmountDisplay(
             label: AppStrings.codOutstanding,
             amountMinor: cod.outstandingCustodyMinor,
@@ -241,14 +255,24 @@ class _CodSectionState extends State<_CodSection> {
               child: TextField(
                 key: const Key('remit_amount_field'),
                 controller: _remit,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'[0-9.,٠-٩۰-۹\s]'),
+                  ),
+                ],
                 enabled: !state.remitBusy,
                 onChanged: controller.updateRemitInput,
                 decoration: InputDecoration(
                   labelText: AppStrings.codRemitAmountLabel,
                   helperText: AppStrings.codRemitHelp,
                   helperMaxLines: 3,
+                  errorText: state.hasInvalidRemitAmount
+                      ? AppStrings.codAmountInvalid
+                      : null,
+                  errorMaxLines: 2,
                 ),
               ),
             ),

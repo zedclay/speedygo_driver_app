@@ -263,7 +263,7 @@ void main() {
       expect(find.byKey(const Key('remit_amount_field')), findsNothing);
     });
 
-    testWidgets('remittance submits integer minor units and clears field', (
+    testWidgets('remittance converts DZD to minor units and clears field', (
       tester,
     ) async {
       _phone(tester);
@@ -281,13 +281,15 @@ void main() {
         200,
         scrollable: find.byType(Scrollable).first,
       );
+      expect(find.text('Montant remis (DA)'), findsOneWidget);
       final submit = find.byKey(const Key('remit_submit_button'));
       await tester.ensureVisible(submit);
       expect(tester.widget<OutlinedButton>(submit).onPressed, isNull);
 
+      // Drivers enter DZD; 150 DA → amountMinor 15000 for the existing API.
       await tester.enterText(
         find.byKey(const Key('remit_amount_field')),
-        '1x5000',
+        '150',
       );
       await tester.pump();
       expect(tester.widget<OutlinedButton>(submit).onPressed, isNotNull);
@@ -298,6 +300,48 @@ void main() {
         find.byKey(const Key('remit_amount_field')),
       );
       expect(field.controller?.text ?? '', isEmpty);
+    });
+
+    testWidgets('remittance 650 DZD maps to amountMinor 65000 without submit', (
+      tester,
+    ) async {
+      _phone(tester);
+      final api = client();
+      var submitCalled = false;
+      api.remittanceHandler = (_) async {
+        submitCalled = true;
+      };
+      await tester.pumpWidget(
+        _app('fr', const EarningsScreen(), [
+          earningsClientProvider.overrideWithValue(api),
+        ]),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('remit_amount_field')),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.enterText(
+        find.byKey(const Key('remit_amount_field')),
+        '650',
+      );
+      await tester.pump();
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(EarningsScreen)),
+      );
+      expect(
+        container.read(earningsControllerProvider).remitAmountMinor,
+        65000,
+      );
+      expect(submitCalled, isFalse);
+    });
+
+    test('AR remittance label uses DA / دج (not centimes)', () {
+      AppStrings.bind('ar');
+      expect(AppStrings.codRemitAmountLabel, 'المبلغ المسلّم (دج)');
+      AppStrings.bind('fr');
+      expect(AppStrings.codRemitAmountLabel, 'Montant remis (DA)');
     });
   });
 }

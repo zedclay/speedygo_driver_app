@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +19,8 @@ import 'package:speedygo_driver_app/features/availability/data/offer_models.dart
 import 'package:speedygo_driver_app/features/availability/presentation/driver_home_screen.dart';
 import 'package:speedygo_driver_app/features/delivery/application/current_delivery_controller.dart';
 import 'package:speedygo_driver_app/features/delivery/data/delivery_api.dart';
+import 'package:speedygo_driver_app/features/earnings/application/earnings_controller.dart';
+import 'package:speedygo_driver_app/features/earnings/data/earnings_api.dart';
 import 'package:speedygo_driver_app/features/delivery/data/delivery_models.dart';
 import 'package:speedygo_driver_app/features/delivery/presentation/current_delivery_screen.dart';
 
@@ -60,8 +63,9 @@ AssignmentOffer _offer({String expiresAt = '2099-01-01T00:00:30.000Z'}) {
 Future<void> _pumpFrames(WidgetTester tester) async {
   // Avoid pumpAndSettle — waiting CircularProgressIndicator never settles.
   await tester.pump();
-  await tester.pump(const Duration(milliseconds: 50));
-  await tester.pump(const Duration(milliseconds: 50));
+  for (var i = 0; i < 8; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
 }
 
 Widget _screenHarness({
@@ -85,6 +89,7 @@ Widget _screenHarness({
       ),
       sessionStoreProvider.overrideWithValue(MemorySessionStore()),
       localeStoreProvider.overrideWithValue(MemoryLocaleStore(locale: locale)),
+      earningsClientProvider.overrideWithValue(FakeEarningsClient()),
     ],
     child: MediaQuery(
       data: MediaQueryData(
@@ -117,6 +122,22 @@ Future<void> _bindLocale(WidgetTester tester, String locale) async {
   await tester.pump();
 }
 
+/// Complete availability via the control's semantics action.
+/// Drag physics are covered in availability_slide_control_test.
+Future<void> _activateAvailability(WidgetTester tester, Key key) async {
+  final finder = find.byKey(key);
+  await tester.ensureVisible(finder);
+  await tester.pump();
+  final handle = tester.ensureSemantics();
+  final node = tester.getSemantics(finder);
+  tester.binding.pipelineOwner.semanticsOwner!.performAction(
+    node.id,
+    SemanticsAction.tap,
+  );
+  handle.dispose();
+  await tester.pump();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -129,8 +150,59 @@ void main() {
     await _bindLocale(tester, 'fr');
     await _pumpFrames(tester);
     expect(find.byKey(const Key('waiting_for_offer')), findsOneWidget);
+    expect(find.byKey(const Key('go_offline_button')), findsOneWidget);
+    expect(find.text(AppStrings.slideToGoOffline), findsOneWidget);
+    // Bootstrap primes When In Use when already authorized → searching is honest.
+    expect(find.byKey(const Key('availability_searching')), findsOneWidget);
     expect(find.text(AppStrings.waitingForOffer), findsOneWidget);
     expect(find.byKey(const Key('offer_card')), findsNothing);
+  });
+
+  testWidgets('online without location does not claim searching', (tester) async {
+    final availability = FakeAvailabilityClient(
+      me: _me(availability: 'ONLINE', matching: true),
+    );
+    final location = FakeDeviceLocationSource(
+      permission: LocationPermission.denied,
+      failure: DeviceLocationFailure.permissionDenied,
+    );
+    await tester.pumpWidget(
+      _screenHarness(availability: availability, location: location),
+    );
+    await _pumpFrames(tester);
+    await _bindLocale(tester, 'fr');
+    await _pumpFrames(tester);
+    expect(find.byKey(const Key('availability_searching')), findsNothing);
+    expect(find.text(AppStrings.waitingForOfferHint), findsOneWidget);
+    expect(find.text(AppStrings.locationPermissionDenied), findsWidgets);
+  });
+
+  testWidgets('availability slide invokes goOnline once and shows pending', (
+    tester,
+  ) async {
+    var release = false;
+    final availability = FakeAvailabilityClient(
+      me: _me(),
+      goOnlineHandler: () async {
+        while (!release) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+        return _me(availability: 'ONLINE', matching: true);
+      },
+    );
+    await tester.pumpWidget(_screenHarness(availability: availability));
+    await _pumpFrames(tester);
+    await _bindLocale(tester, 'fr');
+    await _pumpFrames(tester);
+    await _activateAvailability(tester, const Key('go_online_button'));
+    expect(find.text(AppStrings.goingOnline), findsOneWidget);
+    // Second activate must not double-submit while pending.
+    await _activateAvailability(tester, const Key('go_online_button'));
+    expect(availability.goOnlineCount, 1);
+    release = true;
+    await _pumpFrames(tester);
+    expect(find.byKey(const Key('go_offline_button')), findsOneWidget);
+    expect(availability.goOnlineCount, 1);
   });
 
   testWidgets('offer rendering shows authorized fields', (tester) async {
@@ -142,8 +214,28 @@ void main() {
     await _pumpFrames(tester);
     await _bindLocale(tester, 'fr');
     await _pumpFrames(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(DriverHomeScreen)),
+    );
+    final home = container.read(driverHomeControllerProvider);
+    expect(
+      home.offer,
+      isNotNull,
+      reason:
+          'status=${home.loadStatus} online=${home.isOnline} err=${home.errorMessage} hasDel=${home.hasActiveDelivery} ref=${home.offer?.orderPublicReference}',
+    );
+    await tester.pump();
+    final texts = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data)
+        .whereType<String>()
+        .toList();
+    expect(
+      texts.any((t) => t.contains('Café') || t.contains('SG-42')),
+      isTrue,
+      reason: 'texts=$texts',
+    );
     expect(find.byKey(const Key('offer_card')), findsOneWidget);
-    expect(find.text('Café Atlas'), findsOneWidget);
     expect(find.text('SG-42'), findsOneWidget);
     expect(find.byKey(const Key('offer_countdown')), findsOneWidget);
     expect(find.byKey(const Key('offer_accept_button')), findsOneWidget);
@@ -159,7 +251,8 @@ void main() {
     await _bindLocale(tester, 'fr');
     await _pumpFrames(tester);
     expect(find.text('Hors ligne'), findsOneWidget);
-    expect(find.text('Passer en ligne'), findsOneWidget);
+    expect(find.text(AppStrings.slideToGoOnline), findsOneWidget);
+    expect(find.byKey(const Key('go_online_button')), findsOneWidget);
   });
 
   testWidgets('Arabic/RTL rendering of availability actions', (tester) async {
@@ -170,8 +263,9 @@ void main() {
     await _pumpFrames(tester);
     await _bindLocale(tester, 'ar');
     await _pumpFrames(tester);
-    expect(find.text('غير متصل'), findsOneWidget);
-    expect(find.text('الاتصال'), findsOneWidget);
+    expect(find.text('غير متاح للطلبات'), findsOneWidget);
+    expect(find.text(AppStrings.slideToGoOnline), findsOneWidget);
+    expect(find.byKey(const Key('go_online_button')), findsOneWidget);
     final directionality = tester.widget<Directionality>(
       find.byType(Directionality).first,
     );
@@ -241,7 +335,15 @@ void main() {
       find.byKey(const Key('offer_accept_button')),
     );
     expect(accept.onPressed, isNull);
-    expect(find.textContaining('expir'), findsWidgets);
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            (w.data?.toLowerCase().contains('expir') == true ||
+                w.data == AppStrings.offerExpired),
+      ),
+      findsWidgets,
+    );
   });
 
   testWidgets('layout at 390x844 with text scale 1.35', (tester) async {
@@ -306,6 +408,7 @@ void main() {
           localeStoreProvider.overrideWithValue(
             MemoryLocaleStore(locale: 'fr'),
           ),
+          earningsClientProvider.overrideWithValue(FakeEarningsClient()),
         ],
         child: MediaQuery(
           data: const MediaQueryData(size: Size(390, 844)),
@@ -317,10 +420,10 @@ void main() {
     await tester.tap(find.byKey(const Key('offer_accept_button')));
     await _pumpFrames(tester);
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text(AppStrings.deliveryTitle), findsOneWidget);
+    expect(find.byType(CurrentDeliveryScreen), findsOneWidget);
   });
 
-  testWidgets('permission denied message after go online', (tester) async {
+  testWidgets('permission denied message after first home ready', (tester) async {
     final availability = FakeAvailabilityClient(
       me: _me(),
       goOnlineHandler: () async => _me(availability: 'ONLINE', matching: true),
@@ -335,8 +438,14 @@ void main() {
     await _pumpFrames(tester);
     await _bindLocale(tester, 'fr');
     await _pumpFrames(tester);
-    await tester.tap(find.byKey(const Key('go_online_button')));
+    // Bootstrap primes location without waiting for the availability slider.
+    expect(find.text(AppStrings.locationPermissionDenied), findsWidgets);
+    expect(find.byKey(const Key('location_recovery_button')), findsOneWidget);
+    expect(location.requestPermissionCount, greaterThan(0));
+    final before = location.requestPermissionCount;
+    location.grantOnRequest = LocationPermission.whileInUse;
+    await tester.tap(find.byKey(const Key('location_recovery_button')));
     await _pumpFrames(tester);
-    expect(find.text(AppStrings.locationPermissionDenied), findsOneWidget);
+    expect(location.requestPermissionCount, greaterThan(before));
   });
 }

@@ -19,6 +19,7 @@ import 'package:speedygo_driver_app/features/earnings/presentation/earnings_scre
 import 'package:speedygo_driver_app/features/history/presentation/history_detail_screen.dart';
 import 'package:speedygo_driver_app/features/history/presentation/history_screen.dart';
 import 'package:speedygo_driver_app/features/notifications/presentation/notifications_screen.dart';
+import 'package:speedygo_driver_app/features/onboarding/presentation/onboarding_approved_info_screen.dart';
 import 'package:speedygo_driver_app/features/onboarding/presentation/onboarding_document_screen.dart';
 import 'package:speedygo_driver_app/features/onboarding/presentation/onboarding_profile_screen.dart';
 import 'package:speedygo_driver_app/features/onboarding/presentation/onboarding_review_screen.dart';
@@ -26,6 +27,7 @@ import 'package:speedygo_driver_app/features/onboarding/presentation/onboarding_
 import 'package:speedygo_driver_app/features/onboarding/presentation/onboarding_vehicle_screen.dart';
 import 'package:speedygo_driver_app/features/profile/data/driver_profile_api.dart';
 import 'package:speedygo_driver_app/features/profile/presentation/documents_screen.dart';
+import 'package:speedygo_driver_app/features/profile/presentation/logout_confirmation_screen.dart';
 import 'package:speedygo_driver_app/features/profile/presentation/profile_screen.dart';
 import 'package:speedygo_driver_app/features/profile/presentation/ratings_screen.dart';
 import 'package:speedygo_driver_app/features/profile/presentation/settings_hub_screen.dart';
@@ -87,11 +89,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) =>
             DriverShell(navigationShell: navigationShell),
         branches: [
+          // Commandes — home + delivery + blocked (tabs gated by chrome policy).
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) => const DriverHomeScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.currentDelivery,
+                builder: (context, state) => const CurrentDeliveryScreen(),
+              ),
+              GoRoute(
+                path: '${AppRoutes.blockedUnavailable}/:kind',
+                builder: (context, state) => HonestUnavailableScreen(
+                  kind: state.pathParameters['kind'] ?? '',
+                ),
               ),
             ],
           ),
@@ -103,6 +116,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // Gains — earnings includes COD reconciliation (19) on same branch.
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -111,22 +125,55 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // Profil — nested vehicle/docs/ratings/settings/support keep tabs.
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'vehicle',
+                    builder: (context, state) => const VehicleScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => const VehicleScreen(),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'documents',
+                    builder: (context, state) => const DocumentsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'ratings',
+                    builder: (context, state) => const RatingsScreen(),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: AppRoutes.settings,
+                builder: (context, state) => const SettingsHubScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'language',
+                    builder: (context, state) =>
+                        const LanguageSettingsScreen(),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: AppRoutes.support,
+                builder: (context, state) => const SupportScreen(),
               ),
             ],
           ),
         ],
       ),
+      // Focused (no shell tabs): details, logout, notifications, onboarding.
       GoRoute(
-        path: AppRoutes.currentDelivery,
-        builder: (context, state) => const CurrentDeliveryScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.languageSettings,
+        path: AppRoutes.languageSettingsAuth,
         builder: (context, state) => const LanguageSettingsScreen(),
       ),
       GoRoute(
@@ -134,28 +181,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
-        path: AppRoutes.settings,
-        builder: (context, state) => const SettingsHubScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.vehicle,
-        builder: (context, state) => const VehicleScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.vehicleEdit,
-        builder: (context, state) => const VehicleScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.documents,
-        builder: (context, state) => const DocumentsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.ratings,
-        builder: (context, state) => const RatingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.support,
-        builder: (context, state) => const SupportScreen(),
+        path: AppRoutes.logout,
+        builder: (context, state) => const LogoutConfirmationScreen(),
       ),
       GoRoute(
         path: '${AppRoutes.supportDetail}/:id',
@@ -166,11 +193,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '${AppRoutes.historyDetail}/:id',
         builder: (context, state) =>
             HistoryDetailScreen(deliveryId: state.pathParameters['id'] ?? ''),
-      ),
-      GoRoute(
-        path: '${AppRoutes.blockedUnavailable}/:kind',
-        builder: (context, state) =>
-            HonestUnavailableScreen(kind: state.pathParameters['kind'] ?? ''),
       ),
       GoRoute(
         path: AppRoutes.onboardingProfile,
@@ -204,6 +226,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.onboardingApproved,
         builder: (context, state) =>
             const OnboardingStatusScreen(outcome: OnboardingOutcome.approved),
+      ),
+      GoRoute(
+        path: AppRoutes.onboardingApprovedInfo,
+        builder: (context, state) => const OnboardingApprovedInfoScreen(),
       ),
       GoRoute(
         path: AppRoutes.onboardingCorrections,

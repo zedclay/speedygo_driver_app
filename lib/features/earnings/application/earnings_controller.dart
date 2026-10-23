@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/errors/app_exception.dart';
+import 'package:speedygo_driver_app/core/money/dzd_amount.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/earnings/data/earnings_api.dart';
 import 'package:speedygo_driver_app/features/earnings/data/earnings_models.dart';
@@ -38,8 +39,11 @@ class EarningsState {
 
   bool get hasMore => items.length < total;
 
-  int? get remitAmountMinor =>
-      RegExp(r'^\d{1,12}$').hasMatch(remitInput) ? int.parse(remitInput) : null;
+  /// Drivers enter DZD; conversion to minor units happens only at this boundary.
+  int? get remitAmountMinor => parseDzdInputToMinor(remitInput);
+
+  bool get hasInvalidRemitAmount =>
+      remitInput.isNotEmpty && remitAmountMinor == null;
 
   bool get canSubmitRemittance =>
       !remitBusy &&
@@ -130,9 +134,8 @@ class EarningsController extends Notifier<EarningsState> {
   }
 
   void updateRemitInput(String value) {
-    final digits = value.replaceAll(RegExp(r'\D'), '');
     state = state.copyWith(
-      remitInput: digits.length > 12 ? digits.substring(0, 12) : digits,
+      remitInput: sanitizeDzdInput(value),
       clearMessages: true,
     );
   }

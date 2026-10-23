@@ -53,7 +53,7 @@ class OperationalCard extends StatelessWidget {
       color: DriverTokens.card,
       shape: RoundedRectangleBorder(
         borderRadius: radius,
-        side: BorderSide(color: borderColor ?? DriverTokens.outline),
+        side: BorderSide(color: borderColor ?? DriverTokens.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

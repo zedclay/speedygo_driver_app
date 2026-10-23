@@ -10,6 +10,12 @@ class AppConstants {
   /// Design reference viewport (Android-first).
   static const double designWidth = 390;
   static const double designHeight = 844;
+
+  /// OTP length and resend cooldown (parity with customer / merchant apps).
+  static const int otpLength = 6;
+  static const int otpResendCooldownSeconds = 60;
+  static const String speedyGoAppHeader = 'X-SpeedyGo-App';
+  static const String speedyGoAppAudience = 'DRIVER';
 }
 
 class ApiEndpoints {
@@ -88,7 +94,11 @@ class AppRoutes {
   static const otp = '/auth/otp';
   static const home = '/home';
   static const currentDelivery = '/delivery/current';
+  /// In-shell language (Profil tab) — Modern White ref 25.
   static const languageSettings = '/settings/language';
+
+  /// Pre-auth / focused language (phone, OTP) — no bottom tabs.
+  static const languageSettingsAuth = '/auth/language';
 
   // Shell branches
   static const history = '/history';
@@ -102,6 +112,7 @@ class AppRoutes {
   static const documents = '/profile/documents';
   static const ratings = '/profile/ratings';
   static const settings = '/settings';
+  static const logout = '/logout';
   static const notifications = '/notifications';
   static const support = '/support';
   static const supportDetail = '/support/detail';
@@ -115,6 +126,7 @@ class AppRoutes {
   static const onboardingReview = '/onboarding/review';
   static const onboardingPending = '/onboarding/pending';
   static const onboardingApproved = '/onboarding/approved';
+  static const onboardingApprovedInfo = '/onboarding/approved/info';
   static const onboardingCorrections = '/onboarding/corrections';
 
   static const shellBranches = <String>[home, history, earnings, profile];

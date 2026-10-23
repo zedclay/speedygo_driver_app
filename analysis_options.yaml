@@ -8,6 +8,8 @@ analyzer:
     - build/**
     - android/**
     - ios/**
+    # Evidence snapshots may contain historical Dart copies that are not package code.
+    - docs/evidence/**
 
 linter:
   rules:

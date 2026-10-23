@@ -18,7 +18,10 @@ class StatusBadge extends StatelessWidget {
 
   (Color, Color) get _colors => switch (tone) {
     StatusTone.info => (DriverTokens.primaryContainer, DriverTokens.primary),
-    StatusTone.success => (DriverTokens.successContainer, DriverTokens.success),
+    StatusTone.success => (
+      DriverTokens.tertiaryFixed,
+      DriverTokens.onTertiaryFixed,
+    ),
     StatusTone.warning => (DriverTokens.warningContainer, DriverTokens.warning),
     StatusTone.danger => (DriverTokens.dangerContainer, DriverTokens.danger),
     StatusTone.neutral => (

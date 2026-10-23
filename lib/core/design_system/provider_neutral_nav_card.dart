@@ -35,7 +35,6 @@ class ProviderNeutralNavCard extends StatelessWidget {
   String? get _copyText {
     final a = address?.trim();
     if (a != null && a.isNotEmpty) return a;
-    if (_hasCoords) return '$latitude, $longitude';
     return null;
   }
 
@@ -60,14 +59,11 @@ class ProviderNeutralNavCard extends StatelessWidget {
               children: [
                 if (address != null && address!.trim().isNotEmpty)
                   Text(address!, style: theme.textTheme.bodyLarge),
-                if (_hasCoords)
-                  Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: Text(
-                      '${latitude!.toStringAsFixed(5)}, '
-                      '${longitude!.toStringAsFixed(5)}',
-                      style: theme.textTheme.bodySmall,
-                    ),
+                if (_hasCoords &&
+                    (address == null || address!.trim().isEmpty))
+                  Text(
+                    AppStrings.navPositionReady,
+                    style: theme.textTheme.bodySmall,
                   ),
                 if (distanceMeters != null)
                   Text(
