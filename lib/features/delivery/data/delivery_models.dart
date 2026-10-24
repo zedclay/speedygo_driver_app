@@ -35,6 +35,12 @@ class DriverCurrentDelivery {
     required this.arrivedCustomerAt,
     required this.deliveredAt,
     this.expectedCodAmountMinor,
+    this.dropoffAddressText,
+    this.dropoffBuilding,
+    this.dropoffFloor,
+    this.dropoffEntrance,
+    this.dropoffLandmark,
+    this.dropoffInstructions,
   });
 
   final String assignmentId;
@@ -53,6 +59,33 @@ class DriverCurrentDelivery {
   /// Authoritative COD due amount as integer minor units (decimal string).
   /// Null when payment is not COD or the field is omitted.
   final String? expectedCodAmountMinor;
+  final String? dropoffAddressText;
+  final String? dropoffBuilding;
+  final String? dropoffFloor;
+  final String? dropoffEntrance;
+  final String? dropoffLandmark;
+  final String? dropoffInstructions;
+
+  List<({String label, String value})> visibleDropoffDetails({
+    required String buildingLabel,
+    required String floorLabel,
+    required String entranceLabel,
+    required String landmarkLabel,
+  }) {
+    return [
+      if (_hasText(dropoffBuilding))
+        (label: buildingLabel, value: dropoffBuilding!.trim()),
+      if (_hasText(dropoffFloor))
+        (label: floorLabel, value: dropoffFloor!.trim()),
+      if (_hasText(dropoffEntrance))
+        (label: entranceLabel, value: dropoffEntrance!.trim()),
+      if (_hasText(dropoffLandmark))
+        (label: landmarkLabel, value: dropoffLandmark!.trim()),
+    ];
+  }
+
+  static bool _hasText(String? value) =>
+      value != null && value.trim().isNotEmpty;
 
   bool get canStartToPickup =>
       allowedActions.contains(DeliveryActions.startToPickup);
@@ -110,8 +143,22 @@ class DriverCurrentDelivery {
       arrivedCustomerAt: json['arrivedCustomerAt']?.toString(),
       deliveredAt: json['deliveredAt']?.toString(),
       expectedCodAmountMinor: json['expectedCodAmountMinor']?.toString(),
+      dropoffAddressText: _optionalJsonText(json['dropoffAddressText']),
+      dropoffBuilding: _optionalJsonText(json['dropoffBuilding']),
+      dropoffFloor: _optionalJsonText(json['dropoffFloor']),
+      dropoffEntrance: _optionalJsonText(json['dropoffEntrance']),
+      dropoffLandmark: _optionalJsonText(json['dropoffLandmark']),
+      dropoffInstructions: _optionalJsonText(json['dropoffInstructions']),
     );
   }
+}
+
+String? _optionalJsonText(Object? value) {
+  if (value == null) {
+    return null;
+  }
+  final text = value.toString().trim();
+  return text.isEmpty ? null : text;
 }
 
 class ConfirmPickupRequest {

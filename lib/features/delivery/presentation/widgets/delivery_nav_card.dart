@@ -106,6 +106,7 @@ class DeliveryNavCard extends StatelessWidget {
                       color: DriverTokens.textSecondary,
                     ),
                   ),
+                  if (!_toMerchant) ..._dropoffInstructions(theme),
                 ],
               ),
             ),
@@ -217,6 +218,62 @@ class DeliveryNavCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<Widget> _dropoffInstructions(ThemeData theme) {
+    final addressText = delivery.dropoffAddressText?.trim();
+    final rows = delivery.visibleDropoffDetails(
+      buildingLabel: AppStrings.dropoffBuildingLabel,
+      floorLabel: AppStrings.dropoffFloorLabel,
+      entranceLabel: AppStrings.dropoffEntranceLabel,
+      landmarkLabel: AppStrings.dropoffLandmarkLabel,
+    );
+    final instructions = delivery.dropoffInstructions?.trim();
+    if ((addressText == null || addressText.isEmpty) &&
+        rows.isEmpty &&
+        (instructions == null || instructions.isEmpty)) {
+      return const [];
+    }
+    return [
+      const SizedBox(height: DriverTokens.spaceMd),
+      Text(
+        AppStrings.dropoffInstructionsTitle,
+        key: const Key('dropoff-instructions-title'),
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      if (addressText != null && addressText.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text(
+          addressText,
+          key: const Key('dropoff-address-text'),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: DriverTokens.textPrimary,
+          ),
+        ),
+      ],
+      for (final row in rows) ...[
+        const SizedBox(height: 4),
+        Text(
+          '${row.label} ${row.value}',
+          key: Key('dropoff-detail-${row.label}'),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: DriverTokens.textPrimary,
+          ),
+        ),
+      ],
+      if (instructions != null && instructions.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text(
+          instructions,
+          key: const Key('dropoff-instructions-text'),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: DriverTokens.textPrimary,
+          ),
+        ),
+      ],
+    ];
   }
 }
 

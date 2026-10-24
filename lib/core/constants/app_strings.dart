@@ -552,6 +552,13 @@ class AppStrings {
       _t('Navigation vers le commerçant', 'التنقل إلى التاجر');
   static String get navDropoffTitle =>
       _t('Navigation vers le client', 'التنقل إلى العميل');
+  static String get dropoffBuildingLabel => _t('Bâtiment', 'المبنى');
+  static String get dropoffFloorLabel => _t('Étage', 'الطابق');
+  static String get dropoffEntranceLabel => _t('Entrée', 'المدخل');
+  static String get dropoffLandmarkLabel =>
+      _t('Point de repère', 'علامة مميّزة');
+  static String get dropoffInstructionsTitle =>
+      _t('Instructions de livraison', 'تعليمات التسليم');
   static String get navUnavailable => _t(
     'Navigation indisponible : aucune adresse ni application de cartes n’est fournie par le serveur pour cette course.',
     'التنقل غير متاح: لا يوفّر الخادم عنوانًا ولا تطبيق خرائط لهذا الطلب.',

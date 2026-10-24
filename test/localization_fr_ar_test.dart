@@ -105,6 +105,20 @@ void main() {
     );
   });
 
+  test('dropoff instruction labels differ by locale', () {
+    AppStrings.bind('fr');
+    expect(AppStrings.dropoffBuildingLabel, 'Bâtiment');
+    expect(AppStrings.dropoffFloorLabel, 'Étage');
+    expect(AppStrings.dropoffEntranceLabel, 'Entrée');
+    expect(AppStrings.dropoffLandmarkLabel, 'Point de repère');
+    AppStrings.bind('ar');
+    expect(AppStrings.dropoffBuildingLabel, 'المبنى');
+    expect(AppStrings.dropoffFloorLabel, 'الطابق');
+    expect(AppStrings.dropoffEntranceLabel, 'المدخل');
+    expect(AppStrings.dropoffLandmarkLabel, 'علامة مميّزة');
+    AppStrings.bind('fr');
+  });
+
   test('error and status strings differ by locale without leaking codes', () {
     AppStrings.bind('fr');
     expect(

@@ -41,6 +41,68 @@ Widget _harness(FakeDeliveryClient fake) {
 }
 
 void main() {
+  testWidgets('IN_TRANSIT shows captured dropoff details without empty labels', (
+    tester,
+  ) async {
+    AppStrings.bind('fr');
+    final fake = FakeDeliveryClient(
+      current: const DriverCurrentDelivery(
+        assignmentId: 'asg-1',
+        assignmentVersion: 1,
+        deliveryId: 'del-1',
+        orderId: 'ord-1',
+        deliveryStatus: 'IN_TRANSIT',
+        orderStatus: 'ACTIVE',
+        fulfillmentStatus: 'READY',
+        assignmentStatus: 'ACCEPTED',
+        allowedActions: ['arrive-customer'],
+        pickedUpAt: 't',
+        arrivedCustomerAt: null,
+        deliveredAt: null,
+        dropoffAddressText: 'Cité 1500 Logements',
+        dropoffBuilding: 'Bloc Z',
+        dropoffFloor: null,
+        dropoffEntrance: '',
+        dropoffLandmark: 'Mosquée',
+      ),
+    );
+    await tester.pumpWidget(_harness(fake));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('dropoff-address-text')), findsOneWidget);
+    expect(find.text('Cité 1500 Logements'), findsOneWidget);
+    expect(find.text('Bâtiment Bloc Z'), findsOneWidget);
+    expect(find.text('Point de repère Mosquée'), findsOneWidget);
+    expect(find.textContaining('Étage'), findsNothing);
+    expect(find.textContaining('Entrée'), findsNothing);
+  });
+
+  testWidgets('AT_PICKUP does not reveal dropoff details before pickup', (
+    tester,
+  ) async {
+    final fake = FakeDeliveryClient(
+      current: const DriverCurrentDelivery(
+        assignmentId: 'asg-1',
+        assignmentVersion: 1,
+        deliveryId: 'del-1',
+        orderId: 'ord-1',
+        deliveryStatus: 'AT_PICKUP',
+        orderStatus: 'ACTIVE',
+        fulfillmentStatus: 'READY',
+        assignmentStatus: 'ACCEPTED',
+        allowedActions: ['confirm-pickup'],
+        pickedUpAt: null,
+        arrivedCustomerAt: null,
+        deliveredAt: null,
+        dropoffAddressText: 'Cité 1500 Logements',
+        dropoffBuilding: 'Bloc Z',
+      ),
+    );
+    await tester.pumpWidget(_harness(fake));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('dropoff-instructions-title')), findsNothing);
+    expect(find.text('Cité 1500 Logements'), findsNothing);
+  });
+
   testWidgets('empty state at 390x844', (tester) async {
     final fake = FakeDeliveryClient(current: null);
     await tester.pumpWidget(_harness(fake));
