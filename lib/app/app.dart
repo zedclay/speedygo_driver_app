@@ -6,6 +6,7 @@ import 'package:speedygo_driver_app/app/router/app_router.dart';
 import 'package:speedygo_driver_app/app/theme/app_theme.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
 import 'package:speedygo_driver_app/core/locale/locale_controller.dart';
+import 'package:speedygo_driver_app/features/notifications/presentation/driver_push_host.dart';
 
 class SpeedyGoApp extends ConsumerWidget {
   const SpeedyGoApp({super.key});
@@ -29,11 +30,13 @@ class SpeedyGoApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) {
-        return Directionality(
-          textDirection: locale.languageCode == 'ar'
-              ? TextDirection.rtl
-              : TextDirection.ltr,
-          child: child ?? const SizedBox.shrink(),
+        return DriverPushHost(
+          child: Directionality(
+            textDirection: locale.languageCode == 'ar'
+                ? TextDirection.rtl
+                : TextDirection.ltr,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
       routerConfig: router,

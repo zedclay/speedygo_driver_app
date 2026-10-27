@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
+import 'package:speedygo_driver_app/core/errors/app_exception.dart';
 import 'package:speedygo_driver_app/core/network/api_error_parser.dart';
 import 'package:speedygo_driver_app/core/utils/json_helpers.dart';
 
@@ -71,6 +72,11 @@ abstract class NotificationsClient {
   Future<int> unreadCount();
   Future<void> markRead(String id);
   Future<void> markAllRead();
+  Future<void> registerDeviceToken({
+    required String token,
+    required String platform,
+  });
+  Future<void> deactivateDeviceToken({required String token});
 }
 
 class NotificationsApi implements NotificationsClient {
@@ -126,6 +132,33 @@ class NotificationsApi implements NotificationsClient {
       throw mapDioError(error);
     }
   }
+
+  @override
+  Future<void> registerDeviceToken({
+    required String token,
+    required String platform,
+  }) async {
+    try {
+      await _dio.put<dynamic>(
+        ApiEndpoints.deviceTokensPath,
+        data: {'token': token, 'platform': platform},
+      );
+    } catch (error) {
+      throw mapDioError(error);
+    }
+  }
+
+  @override
+  Future<void> deactivateDeviceToken({required String token}) async {
+    try {
+      await _dio.delete<dynamic>(
+        ApiEndpoints.deviceTokensPath,
+        data: {'token': token},
+      );
+    } catch (error) {
+      throw mapDioError(error);
+    }
+  }
 }
 
 class FakeNotificationsClient implements NotificationsClient {
@@ -143,6 +176,9 @@ class FakeNotificationsClient implements NotificationsClient {
   Object? unreadError;
   bool overlapOnLoadMore = false;
   Duration Function(int callCount)? listDelayForCall;
+  final registered = <String>[];
+  final deactivated = <String>[];
+  Set<String> conflictTokens = {};
 
   int get _unread => unread ?? items.where((n) => !n.read).length;
 
@@ -197,5 +233,25 @@ class FakeNotificationsClient implements NotificationsClient {
     }
     items = [for (final n in items) n.copyWith(read: true)];
     unread = null;
+  }
+
+  @override
+  Future<void> registerDeviceToken({
+    required String token,
+    required String platform,
+  }) async {
+    if (conflictTokens.contains(token)) {
+      throw const ApiException(
+        'Push token is registered to another account',
+        code: 'NOTIFICATION_INTEGRITY_CONFLICT',
+        statusCode: 409,
+      );
+    }
+    registered.add('$platform:$token');
+  }
+
+  @override
+  Future<void> deactivateDeviceToken({required String token}) async {
+    deactivated.add(token);
   }
 }

@@ -81,6 +81,7 @@ class ApiEndpoints {
   static const notificationsUnreadCountPath = '/notifications/unread-count';
   static String notificationReadPath(String id) => '/notifications/$id/read';
   static const notificationsReadAllPath = '/notifications/read-all';
+  static const deviceTokensPath = '/notifications/device-tokens';
 
   static const driverCurrentAssignmentPath = '/driver/assignments/current';
 }

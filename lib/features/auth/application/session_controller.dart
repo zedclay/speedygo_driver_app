@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speedygo_driver_app/core/constants/app_constants.dart';
 import 'package:speedygo_driver_app/core/constants/app_strings.dart';
@@ -7,6 +9,7 @@ import 'package:speedygo_driver_app/core/utils/phone_input.dart';
 import 'package:speedygo_driver_app/features/auth/application/auth_infrastructure.dart';
 import 'package:speedygo_driver_app/features/auth/data/auth_api.dart';
 import 'package:speedygo_driver_app/features/auth/data/models.dart';
+import 'package:speedygo_driver_app/features/notifications/application/driver_push_controller.dart';
 
 enum SessionStatus {
   unknown,
@@ -309,6 +312,11 @@ class SessionController extends Notifier<SessionState> {
   Future<void> logout() async {
     ref.read(sessionEpochProvider.notifier).bump();
     try {
+      await ref
+          .read(driverPushControllerProvider.notifier)
+          .deactivateForSignOut(callServer: true);
+    } catch (_) {}
+    try {
       await _auth.logout();
     } catch (_) {
       // Local clear still required.
@@ -319,6 +327,11 @@ class SessionController extends Notifier<SessionState> {
 
   void markSignedOut() {
     ref.read(sessionEpochProvider.notifier).bump();
+    unawaited(
+      ref
+          .read(driverPushControllerProvider.notifier)
+          .deactivateForSignOut(callServer: false),
+    );
     state = const SessionState(status: SessionStatus.signedOut);
   }
 
